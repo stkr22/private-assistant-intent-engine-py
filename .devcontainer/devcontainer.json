@@ -1,5 +1,5 @@
 {
-	"name": "{{ project_name_devops }}-dev-environment",
+	"name": "private-assistant-intent-engine-dev-environment",
 	"image": "mcr.microsoft.com/devcontainers/python:3.11",
 	"runArgs": [
 		"--userns=keep-id"
