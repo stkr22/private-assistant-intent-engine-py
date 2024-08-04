@@ -8,7 +8,7 @@ version = "0.0.1"
 description = "Intent engine for the private assistant ecosystem"
 authors = ["stkr22 <stkr22@github.com>"]
 readme = "README.md"
-license = "MIT License"
+license = "GNU General Public License v3.0"
 include = ["src"]
 
 [tool.poetry.dependencies]

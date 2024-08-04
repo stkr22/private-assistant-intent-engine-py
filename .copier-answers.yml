@@ -1,9 +1,9 @@
 # Changes here will be overwritten by Copier
-_commit: 0.1.1
+_commit: 0.1.2
 _src_path: gh:stkr22/copier-python-project
 author_email: stkr22@github.com
 author_full_name: stkr22
-copyright_license: MIT License
+copyright_license: GNU General Public License v3.0
 project_description: Intent engine for the private assistant ecosystem
 project_name: Private Assistant Intent Engine
 python_package_distribution_name: private-assistant-intent-engine
