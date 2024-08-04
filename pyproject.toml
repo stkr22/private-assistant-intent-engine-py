@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "private-assistant-intent-engine"
-version = "0.0.1"
+version = "0.0.2"
 description = "Intent engine for the private assistant ecosystem"
 authors = ["stkr22 <stkr22@github.com>"]
 readme = "README.md"
@@ -13,7 +13,7 @@ include = ["src"]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
-typer = "^0.12.3"
+typer = {extras = ["all"], version = "^0.12.3"}
 private-assistant-commons = "^0.1.4"
 spacy = "^3.7.5"
 paho-mqtt = "^2.1.0"
