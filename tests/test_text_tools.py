@@ -30,6 +30,46 @@ def test_extract_numbers_from_text():
     assert result[2].previous_token == "at"
     assert result[2].next_token == "."  # No token after "ten"
 
+    text = "Please play spotify playlist one."
+    doc = nlp(text)
+    result = extract_numbers_from_text(doc)
+    assert len(result) == 1
+
+    # Check first number result
+    assert result[0].number_token == 1
+    assert result[0].previous_token == "playlist"
+    assert result[0].next_token == "."
+
+    text = "Please set a timer for twelve minutes."
+    doc = nlp(text)
+    result = extract_numbers_from_text(doc)
+    assert len(result) == 1
+
+    # Check first number result
+    assert result[0].number_token == 12
+    assert result[0].previous_token == "for"
+    assert result[0].next_token == "minutes"
+
+    text = "Please set an alarm for seven o'clock."
+    doc = nlp(text)
+    result = extract_numbers_from_text(doc)
+    assert len(result) == 1
+
+    # Check first number result
+    assert result[0].number_token == 7
+    assert result[0].previous_token == "for"
+    assert result[0].next_token == "o'clock"
+
+    text = "Please set an alarm for 730."
+    doc = nlp(text)
+    result = extract_numbers_from_text(doc)
+    assert len(result) == 1
+
+    # Check first number result
+    assert result[0].number_token == 730
+    assert result[0].previous_token == "for"
+    assert result[0].next_token == "."
+
 
 def test_extract_verbs_and_subjects():
     text = "John bought five apples and three oranges. He said he will come at ten."
@@ -52,11 +92,71 @@ def test_extract_numbers_from_text_with_no_numbers():
 
 
 def test_extract_verbs_and_subjects_with_complex_sentence():
+    text = "Please set temperature to 31 degrees."
+    doc = nlp(text)
+
+    expected_verbs = ["set"]
+    expected_subjects = ["temperature", "degrees"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
     text = "Please play spotify playlist one."
     doc = nlp(text)
 
     expected_verbs = ["play"]
     expected_subjects = ["spotify", "playlist"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
+    text = "Please close curtain."
+    doc = nlp(text)
+
+    expected_verbs = ["close"]
+    expected_subjects = ["curtain"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
+    text = "Please apply scenery night."
+    doc = nlp(text)
+
+    expected_verbs = ["apply"]
+    expected_subjects = ["scenery", "night"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
+    text = "Please switch off right bed lamp."
+    doc = nlp(text)
+
+    expected_verbs = ["switch"]
+    expected_subjects = ["bed", "lamp"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
+    text = "Please set a timer for twelve minutes."
+    doc = nlp(text)
+
+    expected_verbs = ["set"]
+    expected_subjects = ["timer", "minutes"]
+
+    verbs, subjects = extract_verbs_and_subjects(doc)
+    assert verbs == expected_verbs
+    assert subjects == expected_subjects
+
+    text = "Please set an alarm for seven o'clock."
+    doc = nlp(text)
+
+    expected_verbs = ["set"]
+    expected_subjects = ["alarm", "o'clock"]
 
     verbs, subjects = extract_verbs_and_subjects(doc)
     assert verbs == expected_verbs
