@@ -9,12 +9,11 @@ description = "Intent engine for the private assistant ecosystem"
 authors = ["stkr22 <stkr22@github.com>"]
 readme = "README.md"
 license = "GNU General Public License v3.0"
-include = ["src"]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-typer = {extras = ["all"], version = "^0.12.3"}
-private-assistant-commons = "^0.1.4"
+python = ">=3.11,<3.13"
+typer = "^0.13.0"
+private-assistant-commons = "^1.1.1"
 spacy = "^3.7.5"
 paho-mqtt = "^2.1.0"
 word2number = "^1.1"
@@ -22,9 +21,9 @@ en-core-web-md = {url = "https://github.com/explosion/spacy-models/releases/down
 pydantic = "^2.8.2"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5.5"
-mypy = "^1.11.0"
-pytest = "^8.3.2"
+ruff = "^0.6.8"
+mypy = "^1.11.2"
+pytest = "^8.3.3"
 types-pyyaml = "^6.0.12.20240724"
 
 [tool.poetry.scripts]
@@ -38,7 +37,7 @@ module = [
 ignore_missing_imports = true
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 120
 indent-width = 4
 
