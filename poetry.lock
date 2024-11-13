@@ -835,13 +835,13 @@ murmurhash = ">=0.28.0,<1.1.0"
 
 [[package]]
 name = "private-assistant-commons"
-version = "1.1.1"
+version = "1.1.2"
 description = "Common utilities and base functionalities for all skills in the Private Assistant ecosystem."
 optional = false
 python-versions = "<3.13,>=3.11"
 files = [
-    {file = "private_assistant_commons-1.1.1-py3-none-any.whl", hash = "sha256:3155e87d0eae03b5009991295af01604187f3e526c6b372d2edd6cc847fe163d"},
-    {file = "private_assistant_commons-1.1.1.tar.gz", hash = "sha256:08f68e2b0006b189d72a651046da88023b2a63475b6e8a3db40b88a057e8eee2"},
+    {file = "private_assistant_commons-1.1.2-py3-none-any.whl", hash = "sha256:1782a0b76add2b304c43c9796ee65376b3fc3e247d63a4f484928d0ecc0b2b4d"},
+    {file = "private_assistant_commons-1.1.2.tar.gz", hash = "sha256:ba0fb9a45be08daa363e1c31eac4a56816d6f3346eeae1bcec64dd9a31b7061e"},
 ]
 
 [package.dependencies]
@@ -1618,4 +1618,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "cb55dc8729eff9f8e7e6f29d35e6f94640f484377fe7731d016393a14693702e"
+content-hash = "33423a1c51219ea7e511a1e2e60967f7eb67d24dd92b55651efa1b021e3608d4"

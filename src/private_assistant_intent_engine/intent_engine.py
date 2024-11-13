@@ -4,6 +4,7 @@ import re
 import aiomqtt
 import spacy
 from private_assistant_commons import messages, mqtt_tools
+from spacy.matcher import Matcher
 
 from private_assistant_intent_engine import config, text_tools
 
@@ -23,12 +24,22 @@ class IntentEngine:
             self.config_obj.client_request_subscription
         )
         self.logger = logger
+        pattern = [
+            {"LOWER": "room"},
+            {"POS": "NOUN"},  # Assumes the room name is a noun
+        ]
+        self.room_matcher = Matcher(nlp_model.vocab)
+        self.room_matcher.add("ROOM_NAME_PATTERN", [pattern])
 
     def analyze_text(self, client_request: messages.ClientRequest) -> messages.IntentAnalysisResult:
         doc = self.nlp_model(client_request.text)
         intent_analysis_result = messages.IntentAnalysisResult.model_construct(client_request=client_request)
         intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
         intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
+        matches = self.room_matcher(doc)
+        for match_id, start, end in matches:
+            room_token = doc[end - 1]  # Room name typically follows 'in room'
+            intent_analysis_result.rooms.append(room_token.text)
         return intent_analysis_result
 
     async def handle_intent_input_message(self, payload: str) -> None:
