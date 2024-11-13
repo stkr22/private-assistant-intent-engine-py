@@ -2,10 +2,11 @@ import pathlib
 
 import pytest
 import yaml
+from pydantic import ValidationError
+
 from private_assistant_intent_engine.config import (
     Config,
 )
-from pydantic import ValidationError
 
 # Sample invalid YAML configuration (missing required fields)
 invalid_yaml = """

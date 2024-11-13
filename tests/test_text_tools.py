@@ -1,4 +1,5 @@
 import spacy
+
 from private_assistant_intent_engine.text_tools import (  # replace 'your_module' with the actual module name
     extract_numbers_from_text,
     extract_verbs_and_subjects,
