@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "private-assistant-intent-engine"
-version = "0.1.1"
+version = "0.1.2"
 description = "Intent engine for the private assistant ecosystem"
 authors = ["stkr22 <stkr22@github.com>"]
 readme = "README.md"
@@ -16,7 +16,7 @@ typer = "^0.13.0"
 private-assistant-commons = "^1.1.2"
 spacy = "^3.7.5"
 word2number = "^1.1"
-en-core-web-md = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1-py3-none-any.whl"}
+en-core-web-md = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl"}
 pydantic = "^2.8.2"
 aiomqtt = "^2.3.0"
 
