@@ -13,7 +13,7 @@ from private_assistant_intent_engine import config, intent_engine
 app = async_typer.AsyncTyper()
 
 
-@app.command()
+@app.async_command()
 async def start_intent_engine(
     config_path: Annotated[pathlib.Path, typer.Argument(envvar="PRIVATE_ASSISTANT_CONFIG_PATH")],
 ):
