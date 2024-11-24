@@ -113,10 +113,10 @@ def test_extract_verbs_and_subjects_with_complex_sentence():
     assert verbs == expected_verbs
     assert subjects == expected_subjects
 
-    text = "Please close curtain."
+    text = "Please open curtain."
     doc = nlp(text)
 
-    expected_verbs = ["close"]
+    expected_verbs = ["open"]
     expected_subjects = ["curtain"]
 
     verbs, subjects = extract_verbs_and_subjects(doc)

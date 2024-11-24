@@ -1,9 +1,9 @@
 from private_assistant_commons.messages import NumberAnalysisResult
-from spacy.language import Doc
+from spacy.tokens import Doc, Span
 from word2number import w2n
 
 
-def extract_numbers_from_text(doc: Doc) -> list[NumberAnalysisResult]:
+def extract_numbers_from_text(doc: Doc | Span) -> list[NumberAnalysisResult]:
     numbers_found = []
     for token in doc:
         if token.pos_ == "NUM":
@@ -15,8 +15,11 @@ def extract_numbers_from_text(doc: Doc) -> list[NumberAnalysisResult]:
                 except ValueError:
                     continue  # Skip if the number conversion fails
             object_units = NumberAnalysisResult(number_token=number)
-            next_token = doc[token.i + 1] if token.i + 1 < len(doc) else None
-            previous_token = doc[token.i - 1] if token.i - 1 < len(doc) else None
+
+            # Safely check for next and previous tokens within the span
+            next_token = doc[token.i + 1] if token.i + 1 < len(doc) and isinstance(doc, Doc) else None
+            previous_token = doc[token.i - 1] if token.i - 1 >= 0 and isinstance(doc, Doc) else None
+
             if next_token:
                 object_units.next_token = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
             if previous_token:
@@ -28,7 +31,7 @@ def extract_numbers_from_text(doc: Doc) -> list[NumberAnalysisResult]:
     return numbers_found
 
 
-def extract_verbs_and_subjects(doc: Doc) -> tuple[list[str], list[str]]:
+def extract_verbs_and_subjects(doc: Doc | Span) -> tuple[list[str], list[str]]:
     verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
     nouns = [token.text.lower() for token in doc if token.pos_ in ["NOUN", "PROPN"]]
 
