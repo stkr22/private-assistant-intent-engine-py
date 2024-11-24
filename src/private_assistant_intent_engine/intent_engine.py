@@ -31,24 +31,32 @@ class IntentEngine:
         self.room_matcher = Matcher(nlp_model.vocab)
         self.room_matcher.add("ROOM_NAME_PATTERN", [pattern])
 
-    def analyze_text(self, client_request: messages.ClientRequest) -> messages.IntentAnalysisResult:
+    def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult]:
         doc = self.nlp_model(client_request.text)
-        intent_analysis_result = messages.IntentAnalysisResult.model_construct(client_request=client_request)
-        intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
-        intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
-        matches = self.room_matcher(doc)
-        for match_id, start, end in matches:
-            room_token = doc[end - 1]  # Room name typically follows 'in room'
-            intent_analysis_result.rooms.append(room_token.text)
-        return intent_analysis_result
+        intent_analysis_results = []
+
+        for sent in doc.sents:
+            # Create a result for each sentence
+            intent_analysis_result = messages.IntentAnalysisResult.model_construct(client_request=client_request)
+            intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=sent)
+            intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=sent)
+
+            matches = self.room_matcher(sent)
+            for match_id, start, end in matches:
+                room_token = sent[end - 1]  # Room name typically follows 'in room'
+                intent_analysis_result.rooms.append(room_token.text)
+
+            intent_analysis_results.append(intent_analysis_result)
+
+        return intent_analysis_results
 
     async def handle_intent_input_message(self, payload: str) -> None:
         client_request = messages.ClientRequest.model_validate_json(payload)
-        intent_analysis_result = self.analyze_text(client_request=client_request)
-        self.logger.info("Analysis successful, publishing result.")
-        await self.mqtt_client.publish(
-            self.config_obj.intent_result_topic, intent_analysis_result.model_dump_json(), qos=1
-        )
+        intent_analysis_results = self.analyze_text(client_request=client_request)
+
+        self.logger.info("Analysis successful, publishing results.")
+        for result in intent_analysis_results:
+            await self.mqtt_client.publish(self.config_obj.intent_result_topic, result.model_dump_json(), qos=1)
 
     def decode_message_payload(self, payload) -> str | None:
         """Decode the message payload if it is a suitable type."""
