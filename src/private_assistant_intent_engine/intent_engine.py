@@ -24,6 +24,7 @@ class IntentEngine:
             self.config_obj.client_request_subscription
         )
         self.logger = logger
+        self.command_split = re.compile(r"in addition|besides", flags=re.IGNORECASE)
         pattern = [
             {"LOWER": "room"},
             {"POS": "NOUN"},  # Assumes the room name is a noun
@@ -32,18 +33,16 @@ class IntentEngine:
         self.room_matcher.add("ROOM_NAME_PATTERN", [pattern])
 
     def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult]:
-        doc = self.nlp_model(client_request.text)
         intent_analysis_results = []
-
-        for sent in doc.sents:
-            # Create a result for each sentence
+        for command in self.command_split.split(client_request.text):
+            doc = self.nlp_model(command)
             intent_analysis_result = messages.IntentAnalysisResult.model_construct(client_request=client_request)
-            intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=sent)
-            intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=sent)
+            intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
+            intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
 
-            matches = self.room_matcher(sent)
+            matches = self.room_matcher(doc)
             for match_id, start, end in matches:
-                room_token = sent[end - 1]  # Room name typically follows 'in room'
+                room_token = doc[end - 1]  # Room name typically follows 'in room'
                 intent_analysis_result.rooms.append(room_token.text)
 
             intent_analysis_results.append(intent_analysis_result)

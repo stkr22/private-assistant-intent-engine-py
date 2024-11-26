@@ -30,7 +30,7 @@ def test_analyze_text(intent_engine):
         id=uuid.uuid4(),
         room="livingroom",
         output_topic="test/test/stuff",
-        text="Turn on the lights in room kitchen. Set the temperature to 22 degrees.",
+        text="Turn on the lights in room kitchen. In addition, Set the temperature to 22 degrees.",
     )
 
     # Call analyze_text

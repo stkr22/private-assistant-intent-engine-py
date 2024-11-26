@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "private-assistant-intent-engine"
-version = "0.2.1"
+version = "0.2.2"
 description = "Intent engine for the private assistant ecosystem"
 authors = ["stkr22 <stkr22@github.com>"]
 readme = "README.md"
