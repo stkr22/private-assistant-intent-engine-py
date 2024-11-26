@@ -17,8 +17,8 @@ def extract_numbers_from_text(doc: Doc | Span) -> list[NumberAnalysisResult]:
             object_units = NumberAnalysisResult(number_token=number)
 
             # Safely check for next and previous tokens within the span
-            next_token = doc[token.i + 1] if token.i + 1 < len(doc) and isinstance(doc, Doc) else None
-            previous_token = doc[token.i - 1] if token.i - 1 >= 0 and isinstance(doc, Doc) else None
+            next_token = doc[token.i + 1] if token.i + 1 < len(doc) else None
+            previous_token = doc[token.i - 1] if token.i - 1 >= 0 else None
 
             if next_token:
                 object_units.next_token = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
