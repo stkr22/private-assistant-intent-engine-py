@@ -20,8 +20,7 @@ def intent_engine():
     nlp_model = spacy.load("en_core_web_md")
 
     # Create the IntentEngine instance
-    engine = IntentEngine(config_mock, mqtt_client_mock, nlp_model, logger_mock)
-    return engine
+    return IntentEngine(config_mock, mqtt_client_mock, nlp_model, logger_mock)
 
 
 def test_analyze_text(intent_engine):

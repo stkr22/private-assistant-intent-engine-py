@@ -14,7 +14,7 @@ def nlp():
 
 
 def validate_number_result(result, expected_values):
-    for res, expected in zip(result, expected_values):
+    for res, expected in zip(result, expected_values, strict=False):
         assert res.number_token == expected["number_token"]
         assert res.previous_token == expected["previous_token"]
         assert res.next_token == expected["next_token"]

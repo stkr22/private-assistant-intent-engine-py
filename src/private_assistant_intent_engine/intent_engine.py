@@ -42,7 +42,7 @@ class IntentEngine:
             intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
 
             matches = self.room_matcher(doc)
-            for match_id, start, end in matches:
+            for _match_id, _start, end in matches:
                 room_token = doc[end - 1]  # Room name typically follows 'in room'
                 intent_analysis_result.rooms.append(room_token.text)
 
@@ -60,13 +60,12 @@ class IntentEngine:
 
     def decode_message_payload(self, payload) -> str | None:
         """Decode the message payload if it is a suitable type."""
-        if isinstance(payload, bytes) or isinstance(payload, bytearray):
+        if isinstance(payload, bytes | bytearray):
             return payload.decode("utf-8")
-        elif isinstance(payload, str):
+        if isinstance(payload, str):
             return payload
-        else:
-            self.logger.warning("Unexpected payload type: %s", type(payload))
-            return None
+        self.logger.warning("Unexpected payload type: %s", type(payload))
+        return None
 
     async def setup_subscriptions(self) -> None:
         """Set up MQTT topic subscriptions for the skill."""

@@ -5,17 +5,21 @@ from typing import Annotated
 import aiomqtt
 import spacy
 import typer
-from private_assistant_commons import async_typer, skill_logger
+from private_assistant_commons import skill_logger
 from private_assistant_commons.skill_config import load_config
 
 from private_assistant_intent_engine import config, intent_engine
 
-app = async_typer.AsyncTyper()
+app = typer.Typer()
 
 
-@app.async_command()
+@app.command()
+def main(config_path: Annotated[pathlib.Path, typer.Argument(envvar="PRIVATE_ASSISTANT_CONFIG_PATH")]) -> None:
+    asyncio.run(start_intent_engine(config_path))
+
+
 async def start_intent_engine(
-    config_path: Annotated[pathlib.Path, typer.Argument(envvar="PRIVATE_ASSISTANT_CONFIG_PATH")],
+    config_path: pathlib.Path,
 ):
     config_obj = load_config(config_path, config_class=config.Config)
     logger = skill_logger.SkillLogger.get_logger("Private Assistant Intent Engine")
@@ -50,4 +54,4 @@ async def start_intent_engine(
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(start_intent_engine(config_path=pathlib.Path("./local_config.yaml")))
+    app()
