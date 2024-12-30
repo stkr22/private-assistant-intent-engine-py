@@ -51,3 +51,21 @@ def test_analyze_text(intent_engine):
     assert "set" in second_result.verbs
     assert "temperature" in second_result.nouns
     assert any(num.number_token == 22 for num in second_result.numbers)
+
+
+def test_analyze_text_all_rooms(intent_engine):
+    client_request = ClientRequest(
+        id=uuid.uuid4(),
+        room="livingroom",
+        output_topic="test/test/stuff",
+        text="Turn on the lights in all rooms",
+    )
+
+    results = intent_engine.analyze_text(client_request)
+    assert len(results) == 1
+
+    result = results[0]
+    assert isinstance(result, IntentAnalysisResult)
+    assert "turn" in result.verbs
+    assert "lights" in result.nouns
+    assert set(result.rooms) == {"living room", "kitchen", "bathroom"}
