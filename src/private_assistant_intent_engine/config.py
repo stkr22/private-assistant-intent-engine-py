@@ -1,8 +1,4 @@
-import logging
-
 from pydantic import BaseModel
-
-logger = logging.getLogger(__name__)
 
 
 class Config(BaseModel):
@@ -12,3 +8,4 @@ class Config(BaseModel):
     client_request_subscription: str = "assistant/comms_bridge/+/+/input"
     intent_result_topic: str = "assistant/intent_engine/result"
     spacy_model: str = "en_core_web_md"
+    available_rooms: list[str] = ["living room", "kitchen", "bathroom"]

@@ -4,7 +4,6 @@ import re
 import aiomqtt
 import spacy
 from private_assistant_commons import messages, mqtt_tools
-from spacy.matcher import Matcher
 
 from private_assistant_intent_engine import config, text_tools
 
@@ -25,12 +24,7 @@ class IntentEngine:
         )
         self.logger = logger
         self.command_split = re.compile(r"in addition|besides", flags=re.IGNORECASE)
-        pattern = [
-            {"LOWER": "room"},
-            {"POS": "NOUN"},  # Assumes the room name is a noun
-        ]
-        self.room_matcher = Matcher(nlp_model.vocab)
-        self.room_matcher.add("ROOM_NAME_PATTERN", [pattern])
+        self.available_rooms = {room.lower() for room in config_obj.available_rooms}
 
     def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult]:
         intent_analysis_results = []
@@ -41,10 +35,9 @@ class IntentEngine:
             intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
             intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
 
-            matches = self.room_matcher(doc)
-            for _match_id, _start, end in matches:
-                room_token = doc[end - 1]  # Room name typically follows 'in room'
-                intent_analysis_result.rooms.append(room_token.text)
+            text_lower = command.lower()
+            found_rooms = [room for room in self.available_rooms if room in text_lower]
+            intent_analysis_result.rooms.extend(found_rooms)
 
             intent_analysis_results.append(intent_analysis_result)
 
