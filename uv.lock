@@ -490,7 +490,7 @@ dependencies = [
     { name = "private-assistant-commons" },
     { name = "pydantic" },
     { name = "spacy" },
-    { name = "word2number" },
+    { name = "text2num" },
 ]
 
 [package.dev-dependencies]
@@ -509,7 +509,7 @@ requires-dist = [
     { name = "private-assistant-commons", specifier = ">=2.0.0,<3.0.0" },
     { name = "pydantic", specifier = ">=2.8.2,<3.0.0" },
     { name = "spacy", specifier = ">=3.7.5,<4.0.0" },
-    { name = "word2number", specifier = ">=1.1,<2.0.0" },
+    { name = "text2num", specifier = ">=2.5.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -799,6 +799,15 @@ wheels = [
 ]
 
 [[package]]
+name = "text2num"
+version = "2.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/07/63c363d8222b0be56a99f0b3b491a701f07e27cf355b8dfcf1514b9c0fd6/text2num-2.5.1.tar.gz", hash = "sha256:c060201fa24b7b97f3190045e95e6f2b283ae7ac172cbe482a3a4ef06eb208c4", size = 37480 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9d/d5/ac86a19f575afc230db0be12f959e7f5976dd698d4d427ad85bafd0641d7/text2num-2.5.1-py3-none-any.whl", hash = "sha256:6d55daee015399db2833d55966f3ff6d7c773fa652f99b0d6b06e619e1363462", size = 59225 },
+]
+
+[[package]]
 name = "thinc"
 version = "8.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -944,12 +953,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/a7/1a/9c522dd61b52939c2
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/87/abd57374044e1f627f0a905ac33c1a7daab35a3a815abfea4e1bafd3fdb1/weasel-0.4.1-py3-none-any.whl", hash = "sha256:24140a090ea1ac512a2b2f479cc64192fd1d527a7f3627671268d08ed5ac418c", size = 50270 },
 ]
-
-[[package]]
-name = "word2number"
-version = "1.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4a/29/a31940c848521f0725f0df6b25dca8917f13a2025b0e8fcbe5d0457e45e6/word2number-1.1.zip", hash = "sha256:70e27a5d387f67b04c71fbb7621c05930b19bfd26efd6851e6e0f9969dcde7d0", size = 9723 }
 
 [[package]]
 name = "wrapt"

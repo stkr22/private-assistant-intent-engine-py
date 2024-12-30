@@ -25,10 +25,10 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "private-assistant-commons>=2.0.0,<3.0.0",
     "spacy>=3.7.5,<4.0.0",
-    "word2number>=1.1,<2.0.0",
     "pydantic>=2.8.2,<3.0.0",
     "aiomqtt>=2.3.0,<3.0.0",
-    "en-core-web-md"
+    "en-core-web-md",
+    "text2num>=2.5.1",
 ]
 
 [tool.uv.sources]
@@ -46,13 +46,6 @@ dev = [
 
 [project.scripts]
 private-assistant-intent-engine = "private_assistant_intent_engine.main:app"
-
-
-[[tool.mypy.overrides]]
-module = [
-    "word2number"
-]
-ignore_missing_imports = true
 
 [tool.ruff]
 target-version = "py312"
