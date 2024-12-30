@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "private-assistant-intent-engine"
-version = "0.3.0"
+version = "0.4.0"
 description = "Intent engine for the private assistant ecosystem"
 authors = [
     { name = "stkr22", email = "stkr22@github.com" }

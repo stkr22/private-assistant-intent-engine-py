@@ -36,7 +36,10 @@ class IntentEngine:
             intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
 
             text_lower = command.lower()
-            found_rooms = [room for room in self.available_rooms if room in text_lower]
+            if "all rooms" in text_lower:
+                found_rooms = list(self.available_rooms)
+            else:
+                found_rooms = [room for room in self.available_rooms if room in text_lower]
             intent_analysis_result.rooms.extend(found_rooms)
 
             intent_analysis_results.append(intent_analysis_result)
