@@ -30,8 +30,9 @@ class IntentEngine:
         intent_analysis_results = []
         for command in self.command_split.split(client_request.text):
             doc = self.nlp_model(command)
-            client_request.text = command
-            intent_analysis_result = messages.IntentAnalysisResult.model_construct(client_request=client_request)
+            intent_analysis_result = messages.IntentAnalysisResult.model_construct(
+                client_request=client_request.model_copy(update={"text": command})
+            )
             intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
             intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
 
