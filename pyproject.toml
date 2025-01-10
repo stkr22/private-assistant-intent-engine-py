@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "private-assistant-intent-engine"
-version = "0.4.1"
+version = "0.4.2"
 description = "Intent engine for the private assistant ecosystem"
 authors = [
     { name = "stkr22", email = "stkr22@github.com" }
@@ -21,14 +21,14 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.12"
 dependencies = [
-    "private-assistant-commons>=3.0.0,<3.1.0",
-    "spacy>=3.7.5,<4.0.0",
-    "pydantic>=2.8.2,<3.0.0",
-    "aiomqtt>=2.3.0,<3.0.0",
+    "private-assistant-commons~=3.0.0",
+    "spacy~=3.7.5",
+    "pydantic~=2.9.2",
+    "aiomqtt~=2.3.0",
     "en-core-web-md",
-    "text2num>=2.5.1",
+    "text2num~=2.5.1",
 ]
 
 [tool.uv.sources]
@@ -37,18 +37,18 @@ en-core-web-md = { url = "https://github.com/explosion/spacy-models/releases/dow
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8.0",
-    "mypy>=1.11.0",
-    "pytest>=8.3.3",
-    "pytest-cov>=6.0.0",
-    "types-pyyaml>=6.0.12.20240724,<7.0.0"
+    "ruff~=0.8.0",
+    "mypy~=1.11.0",
+    "pytest~=8.3.3",
+    "pytest-cov~=6.0.0",
+    "types-pyyaml~=6.0.12.20240724"
 ]
 
 [project.scripts]
 private-assistant-intent-engine = "private_assistant_intent_engine.main:app"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 120
 indent-width = 4
 
@@ -70,7 +70,7 @@ select = [
 ignore = ["E203"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 
