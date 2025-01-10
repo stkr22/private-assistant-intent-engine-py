@@ -23,12 +23,12 @@ class IntentEngine:
             self.config_obj.client_request_subscription
         )
         self.logger = logger
-        self.command_split = re.compile(r"in addition|besides", flags=re.IGNORECASE)
+        self.command_split = re.compile(r"in addition,?|besides,?", flags=re.IGNORECASE)
         self.available_rooms = {room.lower() for room in config_obj.available_rooms}
 
     def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult]:
         intent_analysis_results = []
-        for command in self.command_split.split(client_request.text):
+        for command in [artifact.strip() for artifact in self.command_split.split(client_request.text)]:
             doc = self.nlp_model(command)
             intent_analysis_result = messages.IntentAnalysisResult.model_construct(
                 client_request=client_request.model_copy(update={"text": command})
