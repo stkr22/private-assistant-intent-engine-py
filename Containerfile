@@ -1,5 +1,5 @@
 # Build stage: Python 3.11.11-bookworm
-FROM docker.io/library/python@sha256:b337e1fd27dbacda505219f713789bf82766694095876769ea10c2d34b4f470b as build-python
+FROM docker.io/library/python@sha256:aeab3b605cd19f4c6ded578d76ad5faebcb78d21aed529c51ee97c5bb7f71778 as build-python
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/root/.cache \
       --group prod
 
 # runtime stage: Python 3.11.11-slim-bookworm
-FROM docker.io/library/python@sha256:873952659a04188d2a62d5f7e30fd673d2559432a847a8ad5fcaf9cbd085e9ed
+FROM docker.io/library/python@sha256:aeab3b605cd19f4c6ded578d76ad5faebcb78d21aed529c51ee97c5bb7f71778
 
 # Create non-root user
 RUN addgroup --system --gid 1001 appuser && adduser --system --uid 1001 --no-create-home --ingroup appuser appuser
