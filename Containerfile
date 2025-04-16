@@ -24,7 +24,7 @@ RUN --mount=type=cache,target=/root/.cache \
       --group prod
 
 # runtime stage: Python 3.11.11-slim-bookworm
-FROM docker.io/library/python:3.11.11-slim-bookworm@sha256:873952659a04188d2a62d5f7e30fd673d2559432a847a8ad5fcaf9cbd085e9ed
+FROM docker.io/library/python:3.11.11-slim-bookworm@sha256:081075da77b2b55c23c088251026fb69a7b2bf92471e491ff5fd75c192fd38e5
 
 # Create non-root user
 RUN addgroup --system --gid 1001 appuser && adduser --system --uid 1001 --no-create-home --ingroup appuser appuser
