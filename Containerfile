@@ -1,5 +1,5 @@
 # Build stage: Python 3.11.11-bookworm
-FROM docker.io/library/python:3.11.11-bookworm@sha256:b337e1fd27dbacda505219f713789bf82766694095876769ea10c2d34b4f470b as build-python
+FROM docker.io/library/python:3.11.11-bookworm@sha256:4ca910a51a1a474e5d95aa52455331b2a94272eeae3c498be1ad7a2ff9b00bf3 as build-python
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
