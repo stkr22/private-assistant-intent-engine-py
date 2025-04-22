@@ -3,6 +3,12 @@
   "extends": [
     "config:best-practices"
   ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "automerge": true
+    }
+  ],
   "schedule": ["* 16-19 15 * *"],
   "lockFileMaintenance": {
     "enabled": true
