@@ -41,7 +41,7 @@ en-core-web-md = { url = "https://github.com/explosion/spacy-models/releases/dow
 dev = [
     "ruff~=0.8.0",
     "mypy~=1.17.0",
-    "pytest~=8.3.3",
+    "pytest~=8.4.1",
     "pytest-cov~=6.1.1",
     "types-pyyaml~=6.0.12.20240724"
 ]
