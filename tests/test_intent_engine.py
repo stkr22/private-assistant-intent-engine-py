@@ -30,7 +30,8 @@ def client_request() -> ClientRequest:
 
 def test_analyze_text_command_split(intent_engine, client_request):
     results = intent_engine.analyze_text(client_request)
-    assert len(results) == 2
+    expected_command_count = 2
+    assert len(results) == expected_command_count
 
     # Validate first command text
     assert results[0].client_request.text == "Turn on the lights in room kitchen."
@@ -39,10 +40,11 @@ def test_analyze_text_command_split(intent_engine, client_request):
     assert "kitchen" in results[0].rooms
 
     # Validate second command text
+    expected_temperature = 22
     assert results[1].client_request.text == "Set the temperature to 22 degrees."
     assert "set" in results[1].verbs
     assert "temperature" in results[1].nouns
-    assert any(num.number_token == 22 for num in results[1].numbers)
+    assert any(num.number_token == expected_temperature for num in results[1].numbers)
 
 
 def test_analyze_text_all_rooms(intent_engine):
@@ -54,7 +56,8 @@ def test_analyze_text_all_rooms(intent_engine):
     )
 
     results = intent_engine.analyze_text(request)
-    assert len(results) == 1
+    expected_result_count = 1
+    assert len(results) == expected_result_count
 
     # Validate single command text
     assert results[0].client_request.text == "Turn on the lights in all rooms"

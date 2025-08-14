@@ -22,8 +22,9 @@ def test_load_valid_config():
         config_data = yaml.safe_load(file)
     config = Config.model_validate(config_data)
 
+    expected_port = 1884
     assert config.mqtt_server_host == "test_host"
-    assert config.mqtt_server_port == 1884
+    assert config.mqtt_server_port == expected_port
     assert config.client_id == "test_client"
     assert config.client_request_subscription == "test/+/+/input"
     assert config.intent_result_topic == "test/result"
