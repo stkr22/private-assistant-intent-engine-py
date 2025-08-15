@@ -23,15 +23,9 @@ Example:
     >>> asyncio.run(start_intent_engine(Path("config.yaml")))
 """
 
-try:
-    from ._version import __version__
-except ImportError:
-    # Fallback for development installs
-    __version__ = "dev"
-
 # AIDEV-NOTE: Export main components for programmatic usage
 from . import text_tools
 from .config import Config
 from .intent_engine import IntentEngine
 
-__all__ = ["Config", "IntentEngine", "__version__", "text_tools"]
+__all__ = ["Config", "IntentEngine", "text_tools"]
