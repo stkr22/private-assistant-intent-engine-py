@@ -593,6 +593,7 @@ wheels = [
 
 [[package]]
 name = "private-assistant-intent-engine"
+version = "0.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiomqtt" },
