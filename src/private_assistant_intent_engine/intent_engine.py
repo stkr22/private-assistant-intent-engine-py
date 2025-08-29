@@ -7,12 +7,14 @@ for consumption by downstream skills.
 
 import logging
 import re
+from collections import defaultdict
 
 import aiomqtt
 import spacy
 from private_assistant_commons import messages, mqtt_tools
+from pydantic import ValidationError
 
-from private_assistant_intent_engine import config, text_tools
+from private_assistant_intent_engine import config, exceptions, text_tools
 
 
 class IntentEngine:
@@ -59,7 +61,10 @@ class IntentEngine:
         # AIDEV-NOTE: Precompute lowercase room set for efficient room detection
         self.available_rooms = {room.lower() for room in config_obj.available_rooms}
 
-    def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult]:
+        # AIDEV-NOTE: Error metrics for monitoring failure rates
+        self.error_metrics: dict[str, int] = defaultdict(int)
+
+    def analyze_text(self, client_request: messages.ClientRequest) -> list[messages.IntentAnalysisResult] | None:
         """Analyze natural language text and extract linguistic elements.
 
         This method performs the core text analysis by:
@@ -72,7 +77,7 @@ class IntentEngine:
             client_request: Client request containing text and metadata
 
         Returns:
-            List of IntentAnalysisResult objects, one per command segment
+            List of IntentAnalysisResult objects, one per command segment, or None if analysis fails
 
         Example:
             Input: "Turn on lights, in addition set temperature to 20"
@@ -83,31 +88,54 @@ class IntentEngine:
         """
         intent_analysis_results = []
 
-        # AIDEV-NOTE: Split compound commands to handle multiple intents in single message
-        for command in [artifact.strip() for artifact in self.command_split.split(client_request.text)]:
-            # Process command with SpaCy NLP model
-            doc = self.nlp_model(command)
+        try:
+            # AIDEV-NOTE: Split compound commands to handle multiple intents in single message
+            for command in [artifact.strip() for artifact in self.command_split.split(client_request.text)]:
+                # Process command with SpaCy NLP model
+                try:
+                    doc = self.nlp_model(command)
+                except Exception as e:
+                    self.logger.error("SpaCy analysis failed for command '%s': %s", command, str(e))
+                    self.error_metrics["spacy_analysis_errors"] += 1
+                    raise exceptions.TextAnalysisError(f"Failed to analyze text: {e!s}") from e
 
-            # Create analysis result preserving original client context
-            intent_analysis_result = messages.IntentAnalysisResult.model_construct(
-                client_request=client_request.model_copy(update={"text": command})
-            )
+                # Create analysis result preserving original client context
+                intent_analysis_result = messages.IntentAnalysisResult.model_construct(
+                    client_request=client_request.model_copy(update={"text": command})
+                )
 
-            # Extract linguistic elements using text analysis tools
-            intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
-            intent_analysis_result.verbs, intent_analysis_result.nouns = text_tools.extract_verbs_and_subjects(doc=doc)
+                # Extract linguistic elements using text analysis tools
+                try:
+                    intent_analysis_result.numbers = text_tools.extract_numbers_from_text(doc=doc)
+                    verbs_nouns = text_tools.extract_verbs_and_subjects(doc=doc)
+                    intent_analysis_result.verbs, intent_analysis_result.nouns = verbs_nouns
+                except Exception as e:
+                    self.logger.error("Feature extraction failed for command '%s': %s", command, str(e))
+                    self.error_metrics["feature_extraction_errors"] += 1
+                    # Continue with empty features rather than failing completely
+                    intent_analysis_result.numbers = []
+                    intent_analysis_result.verbs = []
+                    intent_analysis_result.nouns = []
 
-            # AIDEV-NOTE: Room detection using simple string matching - may need refinement for complex cases
-            text_lower = command.lower()
-            if "all rooms" in text_lower:
-                found_rooms = list(self.available_rooms)
-            else:
-                found_rooms = [room for room in self.available_rooms if room in text_lower]
-            intent_analysis_result.rooms.extend(found_rooms)
+                # AIDEV-NOTE: Room detection using simple string matching - may need refinement for complex cases
+                text_lower = command.lower()
+                if "all rooms" in text_lower:
+                    found_rooms = list(self.available_rooms)
+                else:
+                    found_rooms = [room for room in self.available_rooms if room in text_lower]
+                intent_analysis_result.rooms.extend(found_rooms)
 
-            intent_analysis_results.append(intent_analysis_result)
+                intent_analysis_results.append(intent_analysis_result)
 
-        return intent_analysis_results
+            return intent_analysis_results
+
+        except exceptions.TextAnalysisError:
+            # Re-raise our custom exceptions
+            raise
+        except Exception as e:
+            self.logger.error("Unexpected error during text analysis: %s", str(e))
+            self.error_metrics["unexpected_analysis_errors"] += 1
+            return None
 
     async def handle_intent_input_message(self, payload: str) -> None:
         """Handle incoming intent analysis requests from MQTT.
@@ -118,20 +146,56 @@ class IntentEngine:
         Args:
             payload: JSON string containing ClientRequest data
 
-        Raises:
-            ValidationError: If payload JSON is invalid or malformed
-
         Note:
             Errors are logged but processing continues to maintain system stability.
+            Individual message failures do not stop the message processing loop.
         """
-        # AIDEV-TODO: Add error handling for JSON parsing failures
-        client_request = messages.ClientRequest.model_validate_json(payload)
-        intent_analysis_results = self.analyze_text(client_request=client_request)
+        try:
+            # Parse JSON payload with error handling
+            try:
+                client_request = messages.ClientRequest.model_validate_json(payload)
+            except ValidationError as e:
+                self.logger.error("JSON validation failed for payload: %s", str(e))
+                self.error_metrics["json_validation_errors"] += 1
+                raise exceptions.JSONParsingError(f"Invalid JSON payload: {e!s}") from e
+            except Exception as e:
+                self.logger.error("JSON parsing failed: %s", str(e))
+                self.error_metrics["json_parsing_errors"] += 1
+                raise exceptions.JSONParsingError(f"Failed to parse JSON: {e!s}") from e
 
-        self.logger.info("Analysis successful, publishing results.")
-        # AIDEV-NOTE: Publish each command segment result separately for parallel skill processing
-        for result in intent_analysis_results:
-            await self.mqtt_client.publish(self.config_obj.intent_result_topic, result.model_dump_json(), qos=1)
+            # Analyze text with error handling
+            try:
+                intent_analysis_results = self.analyze_text(client_request=client_request)
+            except exceptions.TextAnalysisError as e:
+                # Already logged in analyze_text
+                self.logger.warning("Text analysis failed: %s", str(e))
+                return
+            except Exception as e:
+                self.logger.error("Unexpected error during analysis: %s", str(e))
+                self.error_metrics["unexpected_processing_errors"] += 1
+                return
+
+            if intent_analysis_results is None:
+                self.logger.warning("Text analysis returned no results, skipping publishing")
+                return
+
+            self.logger.info("Analysis successful, publishing results.")
+            # AIDEV-NOTE: Publish each command segment result separately for parallel skill processing
+            for result in intent_analysis_results:
+                try:
+                    await self.mqtt_client.publish(self.config_obj.intent_result_topic, result.model_dump_json(), qos=1)
+                except Exception as e:
+                    self.logger.error("Failed to publish result: %s", str(e))
+                    self.error_metrics["mqtt_publish_errors"] += 1
+                    # Continue publishing other results
+
+        except exceptions.JSONParsingError:
+            # JSON errors are expected and handled, just return
+            return
+        except Exception as e:
+            # Catch any unexpected errors to prevent loop termination
+            self.logger.error("Unexpected error in message handler: %s", str(e))
+            self.error_metrics["unexpected_handler_errors"] += 1
 
     def decode_message_payload(self, payload) -> str | None:
         """Decode MQTT message payload to UTF-8 string.
@@ -167,6 +231,18 @@ class IntentEngine:
         await self.mqtt_client.subscribe(topic=self.config_obj.client_request_subscription, qos=1)
         self.logger.info("Subscribed to intent analysis result topic: %s", self.config_obj.client_request_subscription)
 
+    def get_error_metrics(self) -> dict[str, int]:
+        """Get current error metrics for monitoring.
+
+        Returns:
+            Dictionary of error type to count mappings
+        """
+        return dict(self.error_metrics)
+
+    def reset_error_metrics(self) -> None:
+        """Reset error metrics counters."""
+        self.error_metrics.clear()
+
     async def listen_to_messages(self, client: aiomqtt.Client) -> None:
         """Main message processing loop for handling MQTT messages.
 
@@ -189,5 +265,11 @@ class IntentEngine:
             if self.client_request_pattern.match(message.topic.value):
                 payload_str = self.decode_message_payload(message.payload)
                 if payload_str is not None:
-                    # AIDEV-TODO: Add error handling to prevent message processing failures from stopping the loop
-                    await self.handle_intent_input_message(payload_str)
+                    # Error handling ensures message processing failures don't stop the loop
+                    try:
+                        await self.handle_intent_input_message(payload_str)
+                    except Exception as e:
+                        # This should never happen due to error handling in handle_intent_input_message
+                        # But we add it as a safety net
+                        self.logger.critical("Critical error in message processing (should not happen): %s", str(e))
+                        self.error_metrics["critical_loop_errors"] += 1
