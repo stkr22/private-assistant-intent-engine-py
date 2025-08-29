@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v0.5.0...v0.5.1) (2025-08-29)
+
+
+### Bug Fixes
+
+* :bug: add graceful error handling for JSON parsing and text analysis failures [AI] ([b616b24](https://github.com/stkr22/private-assistant-intent-engine-py/commit/b616b2406693884955857bef6539329a971aaaeb)), closes [#37](https://github.com/stkr22/private-assistant-intent-engine-py/issues/37)
+* Add graceful error handling for JSON parsing and text analysis failures ([55407ee](https://github.com/stkr22/private-assistant-intent-engine-py/commit/55407ee60ffca7dfab63df41330da4a44a2f9bc8))
+
 ## [0.5.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v0.4.2...v0.5.0) (2025-08-14)
 
 
