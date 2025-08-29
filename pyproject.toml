@@ -46,7 +46,6 @@ Documentation = "https://github.com/stkr22/private-assistant-intent-engine-py/tr
 Issues = "https://github.com/stkr22/private-assistant-intent-engine-py/issues"
 Changelog = "https://github.com/stkr22/private-assistant-intent-engine-py/blob/main/CHANGELOG.md"
 
-
 [dependency-groups]
 dev = [
     "ruff~=0.8.0",
