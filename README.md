@@ -11,19 +11,19 @@
 
 Owner: stkr22
 
-The `private-assistant-intent-engine` is a **Natural Language Processing (NLP) component** that serves as the intent analysis backbone for the Private Assistant ecosystem. It processes natural language commands from voice interfaces, extracts meaningful linguistic elements, and publishes structured analysis results for downstream skills to consume.
-
-> **Note**: This is currently a preliminary text analysis engine. Future versions will evolve into a comprehensive intent classification system with structured intents (e.g., `turn_on`, `play_music`, `set_temperature`) and entity extraction capabilities.
+The `private-assistant-intent-engine` is a **hybrid NLP component** that classifies user intents and extracts entities from natural language commands. Using rule-based pattern matching combined with SpaCy linguistic analysis, it provides structured intent classification for smart home skills in the Private Assistant ecosystem.
 
 ## Features
 
-- **Natural Language Processing**: Uses SpaCy NLP models to extract linguistic elements (verbs, nouns, numbers) from natural language commands
-- **Number Context Analysis**: Captures contextual information around numbers for better understanding (e.g., "Set temperature to **16**", "Play playlist **5**")
-- **Room Detection**: Identifies room names mentioned in commands, supporting both specific rooms and "all rooms"
-- **Command Splitting**: Handles compound commands with separators like "in addition" and "besides"
-- **MQTT Event-Driven Architecture**: Async MQTT integration with automatic reconnection and error handling
-- **Configurable**: Flexible YAML-based configuration for MQTT settings, SpaCy models, and available rooms
-- **Robust Error Handling**: Graceful handling of connection failures with exponential backoff
+- **Intent Classification**: Recognizes 19 intent types (device control, media control, queries, scenes, scheduling, system)
+- **Confidence Scoring**: Hierarchical scoring (1.0 to 0.3) based on keyword matches and contextual evidence
+- **Entity Extraction**: Extracts 8 entity types (devices, rooms, numbers, durations, times, media IDs, scenes, modifiers)
+- **Alternative Intents**: Provides ranked alternatives for ambiguous commands
+- **Compound Command Support**: Splits and processes multiple commands in single utterance
+- **Pattern Customization**: YAML-based intent pattern override system
+- **Device Registry Integration**: Matches generic and specific device references
+- **MQTT Event-Driven Architecture**: Async MQTT with automatic reconnection and error handling
+- **Database Integration**: Loads rooms from shared database for consistent entity recognition
 
 ## Architecture
 
@@ -36,18 +36,11 @@ Voice Interface → MQTT → Intent Engine → MQTT → Skills
               Text       Text       Published
 ```
 
-1. **Input**: Voice interfaces publish transcribed text to `assistant/comms_bridge/+/+/input`
-2. **Processing**: Intent Engine analyzes text using SpaCy NLP
-3. **Output**: Structured analysis results published to `assistant/intent_engine/result`
-4. **Consumption**: Skills consume results to determine if commands match their capabilities
-
-### Current Analysis Output
-
-The engine currently extracts:
-- **Verbs**: Action words (lemmatized)
-- **Nouns**: Objects and entities (lowercase)
-- **Numbers**: Numerical values with context (previous/next tokens)
-- **Rooms**: Detected room names from configurable list
+1. **Input**: Voice interfaces publish ClientRequest to `assistant/comms_bridge/+/+/input`
+2. **Classification**: Pattern matching identifies intent type with confidence score
+3. **Extraction**: SpaCy NLP extracts entities (devices, rooms, numbers, etc.)
+4. **Output**: IntentRequest messages published to `assistant/intent_engine/result`
+5. **Consumption**: Skills evaluate intent relevance and execute appropriate actions
 
 ## Getting Started
 
@@ -123,24 +116,34 @@ asyncio.run(start_intent_engine(pathlib.Path("config.yaml")))
 }
 ```
 
-### Output Analysis
+### Output: IntentRequest
 ```json
 {
+  "id": "uuid-v4",
+  "classified_intent": {
+    "intent_type": "device.set",
+    "confidence": 0.9,
+    "entities": {
+      "number": [{
+        "type": "number",
+        "raw_text": "20",
+        "normalized_value": 20.0,
+        "metadata": {"unit": "celsius"}
+      }],
+      "room": [{
+        "type": "room",
+        "raw_text": "living room",
+        "normalized_value": "living room"
+      }]
+    },
+    "alternative_intents": [],
+    "raw_text": "Set temperature to 20 degrees in the living room"
+  },
   "client_request": {
     "text": "Set temperature to 20 degrees in the living room",
-    "client_id": "voice_client_1", 
-    "timestamp": "2025-01-15T10:30:00Z"
-  },
-  "verbs": ["set"],
-  "nouns": ["temperature", "degrees", "room"],
-  "numbers": [
-    {
-      "number_token": 20,
-      "previous_token": "to",
-      "next_token": "degrees"
-    }
-  ],
-  "rooms": ["living room"]
+    "room": "kitchen",
+    "output_topic": "assistant/comms_bridge/voice_client/response"
+  }
 }
 ```
 
@@ -163,27 +166,16 @@ uv run mypy src/
 uv build
 ```
 
-## Future Roadmap
+## Documentation
 
-The intent engine will evolve to provide:
+For detailed documentation including:
+- Confidence scoring system
+- All 19 intent types and 8 entity types
+- **Skill Integration Guide** with processing patterns
+- Pattern customization
+- API reference
 
-- **Intent Classification**: Structured intents like `turn_on`, `play_music`, `set_temperature`, `request_state`
-- **Entity Recognition**: Clear entities like "desk lamp", "all lights", "spotify playlist"
-- **Context Understanding**: Better handling of temporal references ("tomorrow morning", "in 15 minutes")
-- **Multi-turn Conversations**: Support for follow-up questions and clarifications
-
-### Example Future Output
-```json
-{
-  "intent": "set_temperature",
-  "entities": {
-    "temperature": 20,
-    "unit": "celsius", 
-    "location": "living room"
-  },
-  "confidence": 0.95
-}
-```
+See [docs/main.md](docs/main.md)
 
 ## Contributing
 
