@@ -13,9 +13,16 @@ import aiomqtt
 import spacy
 import typer
 from private_assistant_commons import skill_logger
-from private_assistant_commons.skill_config import load_config
+from private_assistant_commons.database import Room
+from private_assistant_commons.skill_config import PostgresConfig, load_config
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from private_assistant_intent_engine import config, intent_engine
+from private_assistant_intent_engine.device_registry import DeviceRegistry
+from private_assistant_intent_engine.intent_classifier import IntentClassifier
+from private_assistant_intent_engine.intent_patterns import load_intent_patterns
 
 app = typer.Typer()
 
@@ -68,12 +75,47 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                 nlp_model = spacy.load(config_obj.spacy_model)
                 logger.info("Loaded SpaCy model: %s", config_obj.spacy_model)
 
-                # Create intent engine instance with all dependencies
+                # AIDEV-NOTE: Get Postgres connection string from environment
+                postgres_config = PostgresConfig.from_env()
+                connection_string = postgres_config.connection_string_async
+
+                # AIDEV-NOTE: Create async engine for database operations
+                engine = create_async_engine(connection_string)
+
+                # AIDEV-NOTE: Load rooms from database for entity extraction
+                async with AsyncSession(engine) as session:
+                    result = await session.exec(select(Room))
+                    rooms = list(result.all())
+                    logger.info("Loaded %d rooms from database", len(rooms))
+
+                # AIDEV-NOTE: Load intent patterns from YAML or use defaults
+                intent_patterns = load_intent_patterns(config_obj.intent_patterns_path)
+                logger.info("Loaded %d intent patterns", len(intent_patterns))
+
+                # AIDEV-NOTE: Initialize device registry for pattern-based device matching
+                device_registry = DeviceRegistry(
+                    postgres_connection_string=connection_string,
+                    mqtt_client=client,
+                    logger=logger,
+                )
+                await device_registry.initialize()
+                await device_registry.setup_subscriptions()
+
+                # AIDEV-NOTE: Initialize intent classifier with all dependencies
+                classifier = IntentClassifier(
+                    config_obj=config_obj,
+                    nlp_model=nlp_model,
+                    intent_patterns=intent_patterns,
+                    rooms=rooms,
+                    device_registry=device_registry,
+                )
+
+                # Create intent engine instance with classifier
                 intent_engine_instance = intent_engine.IntentEngine(
                     mqtt_client=client,
                     config_obj=config_obj,
-                    nlp_model=nlp_model,
                     logger=logger,
+                    classifier=classifier,
                 )
 
                 # Set up MQTT topic subscriptions

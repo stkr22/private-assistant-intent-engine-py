@@ -1,7 +1,7 @@
 """Text analysis utilities for extracting linguistic elements from natural language.
 
 This module provides functions for analyzing SpaCy documents to extract:
-- Numbers with contextual information (previous/next tokens)
+- Numbers as Entity objects with contextual metadata
 - Verbs and nouns for action and entity identification
 - Text-to-number conversion supporting both digits and written numbers
 
@@ -11,7 +11,7 @@ analysis results for downstream skill consumption.
 
 import logging
 
-from private_assistant_commons.messages import NumberAnalysisResult
+from private_assistant_commons import Entity, EntityType
 from spacy.tokens import Doc, Span
 from text_to_num import text2num  # type: ignore[import-untyped]
 
@@ -51,11 +51,11 @@ def parse_number(text: str, logger: logging.Logger | None = None) -> int | None:
             return None
 
 
-def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = None) -> list[NumberAnalysisResult]:
-    """Extract numbers and their contextual information from SpaCy document.
+def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = None) -> list[Entity]:
+    """Extract numbers as Entity objects from SpaCy document.
 
     Identifies numerical tokens in the text and captures surrounding context
-    (previous and next tokens) to help understand the number's meaning.
+    (previous and next tokens) as metadata to help understand the number's meaning.
     This is crucial for commands like "Set temperature to 20 degrees" where
     the context ("to", "degrees") clarifies the number's role.
 
@@ -64,14 +64,15 @@ def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = N
         logger: Optional logger for debugging number parsing
 
     Returns:
-        List of NumberAnalysisResult objects containing numbers and context
+        List of Entity objects with type NUMBER containing numbers and context metadata
 
     Examples:
         Input: "Set temperature to 20 degrees"
-        Output: [NumberAnalysisResult(
-            number_token=20,
-            previous_token="to",
-            next_token="degrees"
+        Output: [Entity(
+            type=EntityType.NUMBER,
+            raw_text="20",
+            normalized_value=20,
+            metadata={"previous_token": "to", "next_token": "degrees"}
         )]
     """
     numbers_found = []
@@ -84,55 +85,27 @@ def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = N
             if number is None:
                 continue
 
-            object_units = NumberAnalysisResult(number_token=number)
-
             # AIDEV-NOTE: Capture surrounding context for semantic understanding
             next_token = doc[token.i + 1] if token.i + 1 < len(doc) else None
             prev_token = doc[token.i - 1] if token.i - 1 >= 0 else None
 
+            metadata = {}
             # Store next token context (lemmatized for verbs, lowercase for others)
             if next_token:
-                object_units.next_token = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
+                metadata["next_token"] = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
 
             # Store previous token context (lemmatized for verbs, lowercase for others)
             if prev_token:
-                object_units.previous_token = (
-                    prev_token.lemma_ if prev_token.pos_ == "VERB" else prev_token.text.lower()
-                )
+                metadata["previous_token"] = prev_token.lemma_ if prev_token.pos_ == "VERB" else prev_token.text.lower()
 
-            numbers_found.append(object_units)
+            entity = Entity(
+                type=EntityType.NUMBER,
+                raw_text=token.text,
+                normalized_value=number,
+                confidence=0.9,
+                metadata=metadata,
+            )
+
+            numbers_found.append(entity)
 
     return numbers_found
-
-
-def extract_verbs_and_subjects(doc: Doc | Span) -> tuple[list[str], list[str]]:
-    """Extract verbs and nouns from SpaCy document for action/entity identification.
-
-    Extracts linguistic elements that help identify user intents:
-    - Verbs: Action words (lemmatized to base form)
-    - Nouns: Objects and entities (lowercase for consistency)
-
-    This provides the foundation for intent classification, where verbs
-    indicate actions ("turn", "set", "play") and nouns indicate targets
-    ("lights", "temperature", "music").
-
-    Args:
-        doc: SpaCy document or span to analyze
-
-    Returns:
-        Tuple of (verbs, nouns) as lists of strings
-
-    Examples:
-        Input: "Turn on the bedroom lights"
-        Output: (["turn"], ["bedroom", "lights"])
-
-        Input: "Set temperature to twenty degrees"
-        Output: (["set"], ["temperature", "degrees"])
-    """
-    # AIDEV-NOTE: Extract verbs as lemmatized forms for consistent action identification
-    verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
-
-    # AIDEV-NOTE: Extract nouns and proper nouns as lowercase for entity matching
-    nouns = [token.text.lower() for token in doc if token.pos_ in ["NOUN", "PROPN"]]
-
-    return verbs, nouns

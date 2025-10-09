@@ -3,19 +3,26 @@ from unittest.mock import Mock
 
 import pytest
 import spacy
-from private_assistant_commons.messages import ClientRequest
+from private_assistant_commons import ClientRequest, EntityType, IntentType
 
 from private_assistant_intent_engine import config
+from private_assistant_intent_engine.intent_classifier import IntentClassifier
 from private_assistant_intent_engine.intent_engine import IntentEngine
+from private_assistant_intent_engine.intent_patterns import load_intent_patterns
+
+# Test data constants
+EXPECTED_TEMPERATURE = 22  # Temperature value used in compound command test
 
 
 @pytest.fixture
-def intent_engine():
+def intent_engine(mock_rooms):
     config_mock = config.Config()
     mqtt_client_mock = Mock()
     logger_mock = Mock()
     nlp_model = spacy.load("en_core_web_md")
-    return IntentEngine(config_mock, mqtt_client_mock, nlp_model, logger_mock)
+    intent_patterns = load_intent_patterns()
+    classifier = IntentClassifier(config_mock, nlp_model, intent_patterns, mock_rooms)
+    return IntentEngine(config_mock, mqtt_client_mock, logger_mock, classifier)
 
 
 @pytest.fixture
@@ -24,30 +31,28 @@ def client_request() -> ClientRequest:
         id=uuid.uuid4(),
         room="livingroom",
         output_topic="test/test/stuff",
-        text="Turn on the lights in room kitchen. In addition, Set the temperature to 22 degrees.",
+        text=f"Turn on the lights in room kitchen. In addition, Set the temperature to {EXPECTED_TEMPERATURE} degrees.",
     )
 
 
-def test_analyze_text_command_split(intent_engine, client_request):
-    results = intent_engine.analyze_text(client_request)
+def test_classify_intent_command_split(intent_engine, client_request):
+    """Test that compound commands are split and classified correctly."""
+    results = intent_engine.classify_intent(client_request)
     expected_command_count = 2
     assert len(results) == expected_command_count
 
-    # Validate first command text
-    assert results[0].client_request.text == "Turn on the lights in room kitchen."
-    assert "turn" in results[0].verbs
-    assert "lights" in results[0].nouns
-    assert "kitchen" in results[0].rooms
+    # Validate first command - device on
+    assert results[0].intent_type == IntentType.DEVICE_ON
+    assert "kitchen" in [e.normalized_value for e in results[0].entities.get(EntityType.ROOM.value, [])]
 
-    # Validate second command text
-    expected_temperature = 22
-    assert results[1].client_request.text == "Set the temperature to 22 degrees."
-    assert "set" in results[1].verbs
-    assert "temperature" in results[1].nouns
-    assert any(num.number_token == expected_temperature for num in results[1].numbers)
+    # Validate second command - device set
+    assert results[1].intent_type == IntentType.DEVICE_SET
+    numbers = [e.normalized_value for e in results[1].entities.get(EntityType.NUMBER.value, [])]
+    assert EXPECTED_TEMPERATURE in numbers
 
 
-def test_analyze_text_all_rooms(intent_engine):
+def test_classify_intent_all_rooms(intent_engine):
+    """Test that 'all rooms' is properly detected."""
     request = ClientRequest(
         id=uuid.uuid4(),
         room="livingroom",
@@ -55,22 +60,32 @@ def test_analyze_text_all_rooms(intent_engine):
         text="Turn on the lights in all rooms",
     )
 
-    results = intent_engine.analyze_text(request)
+    results = intent_engine.classify_intent(request)
     expected_result_count = 1
     assert len(results) == expected_result_count
 
-    # Validate single command text
-    assert results[0].client_request.text == "Turn on the lights in all rooms"
-    assert "turn" in results[0].verbs
-    assert "lights" in results[0].nouns
-    assert set(results[0].rooms) == {"living room", "kitchen", "bathroom"}
+    # Validate intent type
+    assert results[0].intent_type == IntentType.DEVICE_ON
+
+    # Validate all rooms are detected
+    room_entities = results[0].entities.get(EntityType.ROOM.value, [])
+    detected_rooms = {e.normalized_value for e in room_entities}
+    assert detected_rooms == {"living room", "kitchen", "bathroom", "bedroom"}
 
 
-def test_analyze_text_preserves_request_attributes(intent_engine, client_request):
-    results = intent_engine.analyze_text(client_request)
+def test_classify_intent_returns_classified_intent(intent_engine):
+    """Test that classification returns ClassifiedIntent objects."""
+    request = ClientRequest(
+        id=uuid.uuid4(),
+        room="livingroom",
+        output_topic="test/test/stuff",
+        text="Turn off the lights",
+    )
 
-    for result in results:
-        # Verify all attributes except text remain unchanged
-        assert result.client_request.id == client_request.id
-        assert result.client_request.room == client_request.room
-        assert result.client_request.output_topic == client_request.output_topic
+    results = intent_engine.classify_intent(request)
+
+    assert results is not None
+    assert len(results) == 1
+    assert results[0].intent_type == IntentType.DEVICE_OFF
+    assert results[0].confidence > 0.0
+    assert results[0].raw_text == "Turn off the lights"
