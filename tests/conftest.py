@@ -71,6 +71,7 @@ class MockDeviceRegistry:
         Returns:
             Matched GlobalDevice or None
         """
+        device: GlobalDevice
         for device in self.devices:
             # Sort patterns by length (longest first)
             for pattern in sorted(device.pattern, key=len, reverse=True):
@@ -87,6 +88,7 @@ class MockDeviceRegistry:
         Returns:
             Matched DeviceType or None
         """
+        device_type: DeviceType
         for device_type in self.device_types:
             if device_type.name.lower() == lemmatized_text.lower():
                 return device_type
