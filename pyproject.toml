@@ -28,7 +28,7 @@ classifiers = [
 
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "private-assistant-commons~=4.4.0",
+    "private-assistant-commons[database]~=4.4.0",
     "spacy~=3.8.7",
     "pydantic~=2.9.2",
     "aiomqtt~=2.4.0",
