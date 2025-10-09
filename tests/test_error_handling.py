@@ -6,20 +6,24 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 import spacy
-from private_assistant_commons.messages import ClientRequest
+from private_assistant_commons import ClientRequest
 
 from private_assistant_intent_engine import config
+from private_assistant_intent_engine.intent_classifier import IntentClassifier
 from private_assistant_intent_engine.intent_engine import IntentEngine
+from private_assistant_intent_engine.intent_patterns import load_intent_patterns
 
 
 @pytest.fixture
-def intent_engine():
+def intent_engine(mock_rooms):
     """Create an IntentEngine instance for testing."""
     config_mock = config.Config()
     mqtt_client_mock = AsyncMock()
     logger_mock = Mock()
     nlp_model = spacy.load("en_core_web_md")
-    return IntentEngine(config_mock, mqtt_client_mock, nlp_model, logger_mock)
+    intent_patterns = load_intent_patterns()
+    classifier = IntentClassifier(config_mock, nlp_model, intent_patterns, mock_rooms)
+    return IntentEngine(config_mock, mqtt_client_mock, logger_mock, classifier)
 
 
 @pytest.fixture
@@ -71,42 +75,20 @@ async def test_handle_invalid_json_structure(intent_engine):
 
 
 @pytest.mark.asyncio
-async def test_analyze_text_exception_handling(intent_engine, valid_client_request):
-    """Test that text analysis exceptions are handled gracefully."""
-    # Test that exceptions during text analysis return None
-    with patch.object(intent_engine, "command_split", Mock(split=Mock(side_effect=RuntimeError("Unexpected")))):
-        result = intent_engine.analyze_text(valid_client_request)
-
-    assert result is None
-    assert intent_engine.error_metrics["unexpected_analysis_errors"] == 1
-
-
-@pytest.mark.asyncio
-async def test_feature_extraction_failure_continues_processing(intent_engine, valid_client_request):
-    """Test that feature extraction failures don't stop processing."""
+async def test_classification_exception_handling(intent_engine, valid_client_request):
+    """Test that classification exceptions are handled gracefully."""
     payload = valid_client_request.model_dump_json()
 
-    # Mock text_tools to raise an exception
-    with patch(
-        "private_assistant_intent_engine.intent_engine.text_tools.extract_numbers_from_text",
-        side_effect=Exception("Extraction error"),
-    ):
+    # Mock classifier to raise an exception
+    with patch.object(intent_engine, "classify_intent", side_effect=RuntimeError("Classification error")):
         await intent_engine.handle_intent_input_message(payload)
 
     # Check that error was logged
     intent_engine.logger.error.assert_called()
-    assert intent_engine.error_metrics["feature_extraction_errors"] == 1
+    assert intent_engine.error_metrics["unexpected_classification_errors"] == 1
 
-    # Verify MQTT publish was still called (with empty features)
-    intent_engine.mqtt_client.publish.assert_called_once()
-
-    # Verify the published result has empty features
-    call_args = intent_engine.mqtt_client.publish.call_args
-    published_json = call_args[0][1]
-    result = json.loads(published_json)
-    assert result["numbers"] == []
-    assert result["verbs"] == []
-    assert result["nouns"] == []
+    # Verify MQTT publish was not called due to error
+    intent_engine.mqtt_client.publish.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -125,14 +107,14 @@ async def test_mqtt_publish_failure(intent_engine, valid_client_request):
     assert intent_engine.error_metrics["mqtt_publish_errors"] == 1
 
 
-def test_analyze_text_with_exception_returns_none(intent_engine, valid_client_request):
-    """Test that analyze_text returns None on unexpected errors."""
+def test_classify_intent_with_exception_returns_none(intent_engine, valid_client_request):
+    """Test that classify_intent returns None on unexpected errors."""
     # Mock SpaCy to raise an unexpected exception
     with patch.object(intent_engine, "command_split", Mock(split=Mock(side_effect=Exception("Unexpected")))):
-        result = intent_engine.analyze_text(valid_client_request)
+        result = intent_engine.classify_intent(valid_client_request)
 
     assert result is None
-    assert intent_engine.error_metrics["unexpected_analysis_errors"] == 1
+    assert intent_engine.error_metrics["unexpected_classification_errors"] == 1
 
 
 def test_get_error_metrics(intent_engine):

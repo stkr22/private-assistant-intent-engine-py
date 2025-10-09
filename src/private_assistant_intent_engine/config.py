@@ -1,24 +1,27 @@
-"""Configuration models for the Private Assistant Intent Engine.
+"""Configuration model for the Private Assistant Intent Engine.
 
-This module defines the Pydantic configuration model that validates
-and manages all runtime settings for the intent engine, including
-MQTT broker settings, NLP model configuration, and room detection.
+This module defines the runtime configuration using pydantic-settings,
+enabling environment variable support and validation for all application
+settings including MQTT broker, NLP models, and topic patterns.
 """
 
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config(BaseModel):
-    """Configuration model for the Intent Engine.
+class Config(BaseSettings):
+    """Runtime configuration for the Intent Engine.
 
     Validates and manages all runtime configuration including:
     - MQTT broker connection settings
     - Topic patterns for message routing
     - SpaCy NLP model configuration
-    - Available rooms for detection
+    - Intent pattern customization
 
-    All configuration is typically loaded from YAML files and validated
-    at application startup to ensure proper system operation.
+    Configuration can be loaded from:
+    - Environment variables (with INTENT_ENGINE_ prefix)
+    - .env file
+    - Direct instantiation with parameters
 
     Attributes:
         mqtt_server_host: MQTT broker hostname or IP address
@@ -27,8 +30,15 @@ class Config(BaseModel):
         client_request_subscription: MQTT topic pattern for incoming requests
         intent_result_topic: MQTT topic for publishing analysis results
         spacy_model: Name of SpaCy language model to load
-        available_rooms: List of room names that can be detected in commands
+        intent_patterns_path: Optional path to custom intent patterns YAML file
     """
+
+    model_config = SettingsConfigDict(
+        env_prefix="INTENT_ENGINE_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     # MQTT Broker Configuration
     mqtt_server_host: str = "localhost"
@@ -42,8 +52,8 @@ class Config(BaseModel):
     # NLP Model Configuration
     spacy_model: str = "en_core_web_md"
 
-    # Room Detection Configuration
-    available_rooms: list[str] = ["living room", "kitchen", "bathroom"]
+    # Intent Pattern Configuration
+    intent_patterns_path: str | None = None
 
     @field_validator("mqtt_server_port")
     @classmethod
@@ -62,24 +72,6 @@ class Config(BaseModel):
         max_port = 65535
         if not 1 <= v <= max_port:
             raise ValueError("MQTT port must be between 1 and 65535")
-        return v
-
-    @field_validator("available_rooms")
-    @classmethod
-    def validate_rooms_not_empty(cls, v: list[str]) -> list[str]:
-        """Validate that available rooms list is not empty.
-
-        Args:
-            v: List of room names to validate
-
-        Returns:
-            Validated room list
-
-        Raises:
-            ValueError: If rooms list is empty
-        """
-        if not v:
-            raise ValueError("Available rooms list cannot be empty")
         return v
 
     @field_validator("spacy_model")
