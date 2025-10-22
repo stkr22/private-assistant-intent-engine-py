@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.0.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v0.5.0...v1.0.0) (2025-10-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* Replaces analyze_text() with classify_intent() and changes output format from verbs/nouns to structured ClassifiedIntent with entities.
+
+### Features
+
+* :sparkles: implement hybrid intent classification system [AI] ([809f719](https://github.com/stkr22/private-assistant-intent-engine-py/commit/809f7193637a6f574db7f9a5a2664b78d1069575))
+
+
+### Bug Fixes
+
+* :bug: add explicit type annotations to fix mypy errors [AI] ([484846a](https://github.com/stkr22/private-assistant-intent-engine-py/commit/484846a26ecbddc9edf4298c083b1e540edc820c))
+* :bug: add graceful error handling for JSON parsing and text analysis failures [AI] ([b616b24](https://github.com/stkr22/private-assistant-intent-engine-py/commit/b616b2406693884955857bef6539329a971aaaeb)), closes [#37](https://github.com/stkr22/private-assistant-intent-engine-py/issues/37)
+* Add graceful error handling for JSON parsing and text analysis failures ([55407ee](https://github.com/stkr22/private-assistant-intent-engine-py/commit/55407ee60ffca7dfab63df41330da4a44a2f9bc8))
+* update dependency specification for private-assistant-commons to include database extras ([33d688d](https://github.com/stkr22/private-assistant-intent-engine-py/commit/33d688de3415585a93db369a470ae4e3447b5522))
+
+
+### Documentation
+
+* :memo: update documentation for intent classification system [AI] ([ba8e633](https://github.com/stkr22/private-assistant-intent-engine-py/commit/ba8e633db627968e76cc44e11841bbbbb9ba6ec4))
+
 ## [0.5.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v0.4.2...v0.5.0) (2025-08-14)
 
 
