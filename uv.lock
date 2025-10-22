@@ -636,33 +636,30 @@ wheels = [
 
 [[package]]
 name = "private-assistant-commons"
-version = "4.4.0"
+version = "5.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiomqtt" },
+    { name = "asyncpg" },
     { name = "pydantic" },
+    { name = "pydantic-settings" },
     { name = "pyyaml" },
     { name = "rich" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/4e/d0501ebeaa96c42b169fd137cb1e68eca7c7cf006efee9e38bef811633b7/private_assistant_commons-4.4.0.tar.gz", hash = "sha256:6b6c3b3710360622743c78ac7df86d7b78ce5f35f4516e8d2c8bf145870aaaed", size = 37592, upload-time = "2025-10-06T18:10:58.908Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/19/79eb4b311bc8302080cf3c89501d0dfc68e2ea39ccbbbc0cada91c88817f/private_assistant_commons-4.4.0-py3-none-any.whl", hash = "sha256:e0ee421dd11a104e1bbd3eafc9fd2c8993c304571a9d4a4b1c5b37281613594a", size = 41669, upload-time = "2025-10-06T18:10:57.385Z" },
-]
-
-[package.optional-dependencies]
-database = [
-    { name = "asyncpg" },
     { name = "sqlmodel" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c7/2b/b9d6457b8b006c07eaf8dda3d93293ccb8e3fc750d0879012b17589f31ab/private_assistant_commons-5.2.2.tar.gz", hash = "sha256:a85618acf808716f1e66aa1231929dcf2aaf4b291d1c4016b3c91a68dda157e5", size = 39843, upload-time = "2025-10-20T10:54:37.642Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ce/68/b6ed75da179503541e92be42492bbcc20d1b3b78d872651a241f73a203f6/private_assistant_commons-5.2.2-py3-none-any.whl", hash = "sha256:cd17a45c7a59baca14042de9a3c108eebf4a4b7a7ada1a9540043dd009be07e5", size = 44256, upload-time = "2025-10-20T10:54:36.166Z" },
 ]
 
 [[package]]
 name = "private-assistant-intent-engine"
-version = "0.5.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiomqtt" },
     { name = "en-core-web-md" },
-    { name = "private-assistant-commons", extra = ["database"] },
+    { name = "private-assistant-commons" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "spacy" },
@@ -686,7 +683,7 @@ dev = [
 requires-dist = [
     { name = "aiomqtt", specifier = "~=2.4.0" },
     { name = "en-core-web-md", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl" },
-    { name = "private-assistant-commons", extras = ["database"], specifier = "~=4.4.0" },
+    { name = "private-assistant-commons", extras = ["database"], specifier = "~=5.2.2" },
     { name = "pydantic", specifier = "~=2.9.2" },
     { name = "pydantic-settings", specifier = ">=2.11.0" },
     { name = "spacy", specifier = "~=3.8.7" },
