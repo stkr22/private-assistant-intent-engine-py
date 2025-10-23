@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.0...v1.0.1) (2025-10-23)
+
+
+### Bug Fixes
+
+* :bug: resolve linter and type checker issues [AI] ([8bb1c28](https://github.com/stkr22/private-assistant-intent-engine-py/commit/8bb1c28a9db8138be088bd6131154144a94b5fdc))
+
 ## [1.0.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v0.5.0...v1.0.0) (2025-10-22)
 
 
