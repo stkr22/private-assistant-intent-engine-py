@@ -1,6 +1,7 @@
 """Tests for intent classification system."""
 
 import uuid
+from unittest.mock import Mock
 
 import pytest
 import spacy
@@ -8,6 +9,7 @@ from private_assistant_commons import ClassifiedIntent, ClientRequest, EntityTyp
 
 from private_assistant_intent_engine import config
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
+from private_assistant_intent_engine.intent_engine import IntentEngine
 from private_assistant_intent_engine.intent_patterns import load_intent_patterns
 
 # Confidence levels from hierarchical classification in IntentClassifier._calculate_confidence
@@ -141,10 +143,6 @@ class TestIntentClassifierIntegration:
 
     def test_classify_intent_basic(self, nlp_model, mock_rooms):
         """Test basic intent classification through IntentEngine."""
-        from unittest.mock import Mock
-
-        from private_assistant_intent_engine.intent_engine import IntentEngine
-
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
@@ -171,10 +169,6 @@ class TestIntentClassifierIntegration:
 
     def test_compound_command_classification(self, nlp_model, mock_rooms):
         """Test classification of compound commands."""
-        from unittest.mock import Mock
-
-        from private_assistant_intent_engine.intent_engine import IntentEngine
-
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
@@ -199,10 +193,6 @@ class TestIntentClassifierIntegration:
 
     def test_alternative_intents(self, nlp_model, mock_rooms):
         """Test that alternative intents are captured."""
-        from unittest.mock import Mock
-
-        from private_assistant_intent_engine.intent_engine import IntentEngine
-
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
