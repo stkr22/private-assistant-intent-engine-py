@@ -13,8 +13,8 @@ import aiomqtt
 import spacy
 import typer
 from private_assistant_commons import skill_logger
-from private_assistant_commons.database import Room
-from private_assistant_commons.skill_config import PostgresConfig, load_config
+from private_assistant_commons.database import PostgresConfig, Room
+from private_assistant_commons.skill_config import load_config
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -76,7 +76,7 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                 logger.info("Loaded SpaCy model: %s", config_obj.spacy_model)
 
                 # AIDEV-NOTE: Get Postgres connection string from environment
-                postgres_config = PostgresConfig.from_env()
+                postgres_config = PostgresConfig()
                 connection_string = postgres_config.connection_string_async
 
                 # AIDEV-NOTE: Create async engine for database operations
