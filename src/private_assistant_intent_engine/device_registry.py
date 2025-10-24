@@ -120,18 +120,18 @@ class DeviceRegistry:
         await self.refresh_devices()
         await self.refresh_device_types()
 
-    def match_device(self, text: str) -> GlobalDevice | None:
+    def match_devices(self, text: str) -> list[GlobalDevice]:
         """Match text against device patterns using exact substring matching.
 
-        Searches through all registered devices to find the first device whose
-        pattern matches the given text. Patterns are sorted by length (longest first)
+        Searches through all registered devices to find all devices whose
+        patterns match the given text. Patterns are sorted by length (longest first)
         to ensure most specific matches are found first.
 
         Args:
             text: Lowercase text to match against device patterns
 
         Returns:
-            Matched GlobalDevice or None if no match found
+            List of matched GlobalDevice objects (empty list if no matches found)
 
         Note:
             Text should be lowercased before calling this method for
@@ -139,19 +139,22 @@ class DeviceRegistry:
         """
         # AIDEV-NOTE: Sort devices by longest pattern first for most specific matches
         # AIDEV-TODO: Implement fuzzy matching for better UX (issue to be created)
+        matched_devices = []
+        matched_device_ids = set()  # Track matched device IDs to prevent duplicates
+
         for device in self.devices:
             # Sort patterns by length (longest first) to match most specific
             for pattern in sorted(device.pattern, key=len, reverse=True):
-                if pattern.lower() in text:
+                if pattern.lower() in text and device.id not in matched_device_ids:
                     # Get device type name for logging
-                    type_name = next(
-                        (dt.name for dt in self.device_types if dt.id == device.device_type_id), "unknown"
-                    )
+                    type_name = next((dt.name for dt in self.device_types if dt.id == device.device_type_id), "unknown")
                     self.logger.debug(
                         "Matched device '%s' (type: %s) with pattern '%s'", device.name, type_name, pattern
                     )
-                    return device
-        return None
+                    matched_devices.append(device)
+                    matched_device_ids.add(device.id)
+                    break  # Don't check other patterns for this device
+        return matched_devices
 
     def match_device_type(self, lemmatized_text: str) -> DeviceType | None:
         """Match lemmatized text against device types.

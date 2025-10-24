@@ -199,3 +199,28 @@ class TestEntityExtractor:
         # All IDs should be unique
         ids = [e.id for e in all_entities]
         assert len(ids) == len(set(ids))
+
+    def test_multiple_device_extraction(self, entity_extractor_with_registry: EntityExtractor):
+        """Test: 'Please turn off desk and shelf'
+
+        Expected:
+        - Both 'desk' and 'shelf' devices should be extracted
+        - Both should be specific device matches (not generic)
+        """
+        text = "Please turn off desk and shelf"
+        entities = entity_extractor_with_registry.extract(text)
+
+        # Should extract both devices from registry
+        assert EntityType.DEVICE.value in entities
+        devices = entities[EntityType.DEVICE.value]
+        assert len(devices) == 2  # noqa: PLR2004
+
+        # Extract device names
+        device_names = {device.normalized_value for device in devices}
+        assert device_names == {"desk", "shelf"}
+
+        # Both should be specific device matches (not generic)
+        for device in devices:
+            assert device.metadata.get("is_generic") is False
+            assert device.metadata.get("device_type") == "switch"
+            assert device.metadata.get("device_id")  # Should have device_id
