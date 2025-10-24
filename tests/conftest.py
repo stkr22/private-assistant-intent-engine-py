@@ -18,11 +18,13 @@ class MockDeviceRegistry:
         self.light_type = DeviceType(id=uuid4(), name="light")
         self.spotify_type = DeviceType(id=uuid4(), name="spotify")
         self.cover_type = DeviceType(id=uuid4(), name="cover")
+        self.switch_type = DeviceType(id=uuid4(), name="switch")
 
         self.device_types = [
             self.light_type,
             self.spotify_type,
             self.cover_type,
+            self.switch_type,
         ]
 
         # Create devices
@@ -53,31 +55,56 @@ class MockDeviceRegistry:
             skill_id=uuid4(),
         )
 
+        self.shelf_device = GlobalDevice(
+            id=uuid4(),
+            name="shelf",
+            device_type_id=self.switch_type.id,
+            pattern=["shelf"],
+            device_attributes=None,
+            skill_id=uuid4(),
+        )
+
+        self.desk_device = GlobalDevice(
+            id=uuid4(),
+            name="desk",
+            device_type_id=self.switch_type.id,
+            pattern=["desk"],
+            device_attributes=None,
+            skill_id=uuid4(),
+        )
+
         self.devices = [
             self.ceiling_device,
             self.spotify_device,
             self.curtain_device,
+            self.shelf_device,
+            self.desk_device,
         ]
 
-    def match_device(self, text: str) -> GlobalDevice | None:
+    def match_devices(self, text: str) -> list[GlobalDevice]:
         """Match text against device patterns.
 
         Sorts patterns by length (longest first) to ensure most specific
-        matches are found first.
+        matches are found first. Returns all matching devices.
 
         Args:
             text: Lowercase text to match
 
         Returns:
-            Matched GlobalDevice or None
+            List of matched GlobalDevice objects (empty list if no matches)
         """
+        matched_devices = []
+        matched_device_ids = set()
+
         device: GlobalDevice
         for device in self.devices:
             # Sort patterns by length (longest first)
             for pattern in sorted(device.pattern, key=len, reverse=True):
-                if pattern.lower() in text:
-                    return device
-        return None
+                if pattern.lower() in text and device.id not in matched_device_ids:
+                    matched_devices.append(device)
+                    matched_device_ids.add(device.id)
+                    break  # Don't check other patterns for this device
+        return matched_devices
 
     def match_device_type(self, lemmatized_text: str) -> DeviceType | None:
         """Match lemmatized text against device types.

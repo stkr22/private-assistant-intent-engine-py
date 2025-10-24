@@ -194,25 +194,27 @@ class EntityExtractor:
 
         # Priority 1: Registry match (specific devices)
         if self.device_registry:
-            device = self.device_registry.match_device(text_lower)
-            if device:
-                # Get device type name from registry
-                device_type_name = self._get_device_type_name(device)
+            devices = self.device_registry.match_devices(text_lower)
+            if devices:
+                # Create entities for all matched devices
+                for device in devices:
+                    # Get device type name from registry
+                    device_type_name = self._get_device_type_name(device)
 
-                entities.append(
-                    Entity(
-                        type=EntityType.DEVICE,
-                        raw_text=device.name,  # AIDEV-TODO: Extract actual matched text from pattern
-                        normalized_value=device.name,
-                        confidence=self.CONFIDENCE_REGISTRY_DEVICE,
-                        metadata={
-                            "device_id": str(device.id),
-                            "device_type": device_type_name,
-                            "is_generic": False,
-                        },
+                    entities.append(
+                        Entity(
+                            type=EntityType.DEVICE,
+                            raw_text=device.name,  # AIDEV-TODO: Extract actual matched text from pattern
+                            normalized_value=device.name,
+                            confidence=self.CONFIDENCE_REGISTRY_DEVICE,
+                            metadata={
+                                "device_id": str(device.id),
+                                "device_type": device_type_name,
+                                "is_generic": False,
+                            },
+                        )
                     )
-                )
-                return entities  # Return immediately - most specific match found
+                return entities  # Return all matched devices - most specific matches found
 
         # Priority 2: DeviceType match (generic type with quantifier="all")
         if self.device_registry:

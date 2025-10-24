@@ -131,7 +131,7 @@ class IntentPatternsConfig(BaseModel):
                 IntentPatternConfig(
                     intent_type=IntentType.DEVICE_SET,
                     keywords=["set", "adjust", "change"],
-                    context_hints=["temperature", "thermostat", "brightness", "level"],
+                    context_hints=["temperature", "thermostat", "brightness", "level", "percent", "%"],
                     negative_keywords=[],
                 ),
                 IntentPatternConfig(
@@ -193,8 +193,8 @@ class IntentPatternsConfig(BaseModel):
                 # Scene and scheduling
                 IntentPatternConfig(
                     intent_type=IntentType.SCENE_APPLY,
-                    keywords=["activate scene", "apply scene", "scene", "set scene"],
-                    context_hints=["scene", "mode", "preset"],
+                    keywords=["activate scenery", "apply scenery", "scenery", "set scenery"],
+                    context_hints=["scenery", "mode", "preset"],
                     negative_keywords=[],
                 ),
                 IntentPatternConfig(
