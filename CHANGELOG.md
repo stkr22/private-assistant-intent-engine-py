@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.1...v1.0.2) (2025-10-24)
+
+
+### Bug Fixes
+
+* :bug: extract all matching devices instead of only first match [AI] ([e3a81cd](https://github.com/stkr22/private-assistant-intent-engine-py/commit/e3a81cda4845b2432e88df93abdf7db199c37c1d))
+* :bug: extract all matching devices instead of only first match [AI] ([86cb71c](https://github.com/stkr22/private-assistant-intent-engine-py/commit/86cb71cae565a2e45b122da87d2c5b4e52943c4e))
+
 ## [1.0.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.0...v1.0.1) (2025-10-23)
 
 
