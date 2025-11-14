@@ -135,6 +135,44 @@ class TestEntityExtractor:
         assert number_entity.metadata
         assert number_entity.metadata.get("unit") == "celsius"
 
+    def test_temperature_with_celsius_symbol(self, entity_extractor: EntityExtractor):
+        """Test: 'Set temperature to 28°C'
+
+        Expected:
+        - Number: 28 with celsius unit (°C symbol should be recognized)
+        """
+        text = "Set temperature to 28°C"
+        entities = entity_extractor.extract(text)
+
+        assert EntityType.NUMBER.value in entities
+        numbers = entities[EntityType.NUMBER.value]
+        assert len(numbers) > 0
+        number_entity = numbers[0]
+        assert number_entity.normalized_value == 28.0  # noqa: PLR2004
+
+        # Should detect celsius unit from °C symbol
+        assert number_entity.metadata
+        assert number_entity.metadata.get("unit") == "celsius"
+
+    def test_temperature_with_fahrenheit_symbol(self, entity_extractor: EntityExtractor):
+        """Test: 'Set temperature to 75°F'
+
+        Expected:
+        - Number: 75 with fahrenheit unit (°F symbol should be recognized)
+        """
+        text = "Set temperature to 75°F"
+        entities = entity_extractor.extract(text)
+
+        assert EntityType.NUMBER.value in entities
+        numbers = entities[EntityType.NUMBER.value]
+        assert len(numbers) > 0
+        number_entity = numbers[0]
+        assert number_entity.normalized_value == 75.0  # noqa: PLR2004
+
+        # Should detect fahrenheit unit from °F symbol
+        assert number_entity.metadata
+        assert number_entity.metadata.get("unit") == "fahrenheit"
+
     def test_multiple_numbers_extraction(self, entity_extractor: EntityExtractor):
         """Test extraction of multiple numbers in same command."""
         text = "Set a timer for 1 minute and 30 seconds"

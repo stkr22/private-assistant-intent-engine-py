@@ -61,9 +61,10 @@ class EntityExtractor:
         self.CONFIDENCE_GENERIC_TYPE = 0.8
 
         # AIDEV-NOTE: Unit mappings for normalization (singular forms only - use lemmatization)
+        # Include both "°c" and "° c" (space-separated) because lemmatization re-tokenizes special chars
         self.unit_mappings = {
-            "celsius": ["degree", "celsius", "°c"],
-            "fahrenheit": ["fahrenheit", "°f"],
+            "celsius": ["degree", "celsius", "°c", "° c"],
+            "fahrenheit": ["fahrenheit", "°f", "° f"],
             "percentage": ["percent", "%", "percentage"],
             "brightness": ["brightness", "level"],
         }

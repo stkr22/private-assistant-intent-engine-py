@@ -92,7 +92,16 @@ def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = N
             metadata = {}
             # Store next token context (lemmatized for verbs, lowercase for others)
             if next_token:
-                metadata["next_token"] = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
+                next_token_text = next_token.lemma_ if next_token.pos_ == "VERB" else next_token.text.lower()
+
+                # AIDEV-NOTE: Handle unit symbols split across tokens (e.g., "°" + "C" → "°c")
+                # SpaCy tokenizes "28°C" as three tokens: "28", "°", "C"
+                # We need to combine "°" with the following character for proper unit detection
+                if next_token_text == "°" and token.i + 2 < len(doc):
+                    second_next_token = doc[token.i + 2]
+                    next_token_text = next_token_text + second_next_token.text.lower()
+
+                metadata["next_token"] = next_token_text
 
             # Store previous token context (lemmatized for verbs, lowercase for others)
             if prev_token:
