@@ -62,5 +62,3 @@ def test_extract_numbers_from_text(nlp, text, expected_numbers):
         result = extract_numbers_from_text(sent)
         assert len(result) == len(expected_numbers)
         validate_number_result(result, expected_numbers)
-
-
