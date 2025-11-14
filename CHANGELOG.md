@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.3](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.2...v1.0.3) (2025-11-14)
+
+
+### Bug Fixes
+
+* :bug: recognize temperature units with °C and °F symbols [AI] ([8b87569](https://github.com/stkr22/private-assistant-intent-engine-py/commit/8b87569caf3cd03d72ebc9002cc4d45ebadbd75c))
+* :bug: recognize temperature units with °C and °F symbols [AI] ([dd3ec8c](https://github.com/stkr22/private-assistant-intent-engine-py/commit/dd3ec8cf0c056d2b3ecedf34182594ecf346174c))
+* :bug: update license to GPL-3.0-only in pyproject.toml ([eaf8102](https://github.com/stkr22/private-assistant-intent-engine-py/commit/eaf8102483896bbb70c48e2df02a8f0881ccabe8))
+
 ## [1.0.2](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.1...v1.0.2) (2025-10-24)
 
 
