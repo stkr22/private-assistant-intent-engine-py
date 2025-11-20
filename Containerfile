@@ -1,5 +1,5 @@
 # Build stage: Python 3.12.12-trixie
-FROM docker.io/library/python:3.12.12-trixie@sha256:872565c5ac89cafbab19419c699d80bda96e9d0f47a4790e5229bd3aeeeb5da9 AS build-python
+FROM docker.io/library/python:3.14.0-trixie@sha256:3fd62bea517655424fb4a781e74233c6386d51ba790d5e2ecf843f892c693303 AS build-python
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.cache \
     uv pip install dist/*.whl
 
 # runtime stage: Python 3.12.12-slim-trixie
-FROM docker.io/library/python:3.12.12-slim-trixie@sha256:e97cf9a2e84d604941d9902f00616db7466ff302af4b1c3c67fb7c522efa8ed9
+FROM docker.io/library/python:3.14.0-slim-trixie@sha256:0aecac02dc3d4c5dbb024b753af084cafe41f5416e02193f1ce345d671ec966e
 
 ENV PYTHONUNBUFFERED=1
 
