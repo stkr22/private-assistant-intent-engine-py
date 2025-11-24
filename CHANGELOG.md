@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.3...v1.0.4) (2025-11-24)
+
+
+### Bug Fixes
+
+* update Python version to 3.13.9 and uv version to 0.9.11 in Containerfile ([ab903da](https://github.com/stkr22/private-assistant-intent-engine-py/commit/ab903dacfe7cc2c3f5f276cf5a929bace4c74c1f))
+
 ## [1.0.3](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.2...v1.0.3) (2025-11-14)
 
 
