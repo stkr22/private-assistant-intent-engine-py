@@ -162,7 +162,7 @@ class IntentPatternsConfig(BaseModel):
                 IntentPatternConfig(
                     intent_type=IntentType.MEDIA_NEXT,
                     keywords=["next", "skip"],
-                    context_hints=["song", "track", "music"],
+                    context_hints=["song", "track", "music", "picture", "playlist", "image"],
                     negative_keywords=["previous", "back"],
                 ),
                 IntentPatternConfig(
