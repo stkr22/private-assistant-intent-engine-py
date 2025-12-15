@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.4...v1.1.0) (2025-12-15)
+
+
+### Features
+
+* adding cues to media intent next ([635f513](https://github.com/stkr22/private-assistant-intent-engine-py/commit/635f5135c2149b32eb81691317d00ab3f5e126ee))
+
 ## [1.0.4](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.3...v1.0.4) (2025-11-24)
 
 
