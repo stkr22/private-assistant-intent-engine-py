@@ -28,13 +28,13 @@ classifiers = [
 
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "private-assistant-commons~=5.2.2",
+    "private-assistant-commons~=5.4.0",
     "spacy~=3.8.7",
-    "pydantic~=2.9.2",
-    "aiomqtt~=2.4.0",
+    "pydantic",
+    "aiomqtt",
     "en-core-web-md",
     "text2num~=3.0.0",
-    "pydantic-settings>=2.11.0",
+    "pydantic-settings",
 ]
 
 [tool.uv.sources]
@@ -91,6 +91,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
+plugins = ["pydantic.mypy"]
 warn_return_any = true
 warn_unused_configs = true
 
