@@ -2,7 +2,10 @@
 
 This module defines the runtime configuration using pydantic-settings,
 enabling environment variable support and validation for all application
-settings including MQTT broker, NLP models, and topic patterns.
+settings including topic patterns, NLP models, and intent patterns.
+
+MQTT broker configuration is handled separately via MqttConfig from
+private_assistant_commons, which reads from MQTT_* environment variables.
 """
 
 from pydantic import field_validator
@@ -13,7 +16,6 @@ class Config(BaseSettings):
     """Runtime configuration for the Intent Engine.
 
     Validates and manages all runtime configuration including:
-    - MQTT broker connection settings
     - Topic patterns for message routing
     - SpaCy NLP model configuration
     - Intent pattern customization
@@ -24,9 +26,6 @@ class Config(BaseSettings):
     - Direct instantiation with parameters
 
     Attributes:
-        mqtt_server_host: MQTT broker hostname or IP address
-        mqtt_server_port: MQTT broker port (typically 1883 for plain, 8883 for TLS)
-        client_id: Unique identifier for this MQTT client
         client_request_subscription: MQTT topic pattern for incoming requests
         intent_result_topic: MQTT topic for publishing analysis results
         spacy_model: Name of SpaCy language model to load
@@ -40,11 +39,6 @@ class Config(BaseSettings):
         extra="ignore",
     )
 
-    # MQTT Broker Configuration
-    mqtt_server_host: str = "localhost"
-    mqtt_server_port: int = 1883
-    client_id: str = "intent_engine"
-
     # MQTT Topic Configuration
     client_request_subscription: str = "assistant/comms_bridge/+/+/input"
     intent_result_topic: str = "assistant/intent_engine/result"
@@ -54,25 +48,6 @@ class Config(BaseSettings):
 
     # Intent Pattern Configuration
     intent_patterns_path: str | None = None
-
-    @field_validator("mqtt_server_port")
-    @classmethod
-    def validate_mqtt_port(cls, v: int) -> int:
-        """Validate MQTT port is in valid range.
-
-        Args:
-            v: Port number to validate
-
-        Returns:
-            Validated port number
-
-        Raises:
-            ValueError: If port is outside valid range (1-65535)
-        """
-        max_port = 65535
-        if not 1 <= v <= max_port:
-            raise ValueError("MQTT port must be between 1 and 65535")
-        return v
 
     @field_validator("spacy_model")
     @classmethod

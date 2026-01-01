@@ -1,6 +1,3 @@
-mqtt_server_host: "test_host"
-mqtt_server_port: 1884
-client_id: "test_client"
 client_request_subscription: "test/+/+/input"
 intent_result_topic: "test/result"
 spacy_model: "en_core_web_sm"

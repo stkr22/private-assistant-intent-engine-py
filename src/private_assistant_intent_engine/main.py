@@ -12,7 +12,7 @@ from typing import Annotated
 import aiomqtt
 import spacy
 import typer
-from private_assistant_commons import skill_logger
+from private_assistant_commons import MqttConfig, skill_logger
 from private_assistant_commons.database import PostgresConfig, Room
 from private_assistant_commons.skill_config import load_config
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -43,16 +43,16 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
 
     This function handles the complete application lifecycle:
     1. Loads and validates configuration from YAML file
-    2. Sets up logging
-    3. Establishes MQTT connection with reconnection logic
-    4. Loads SpaCy NLP model
-    5. Creates and runs the IntentEngine instance
+    2. Loads MQTT configuration from environment variables
+    3. Sets up logging
+    4. Establishes MQTT connection with reconnection logic
+    5. Loads SpaCy NLP model
+    6. Creates and runs the IntentEngine instance
 
     Args:
         config_path: Path to YAML configuration file
 
     Raises:
-        ValueError: If MQTT configuration is invalid
         OSError: If SpaCy model cannot be loaded
         ConfigValidationError: If configuration validation fails
     """
@@ -60,11 +60,15 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
     config_obj = load_config(config_path, config_class=config.Config)
     logger = skill_logger.SkillLogger.get_logger("Private Assistant Intent Engine")
 
-    # AIDEV-NOTE: Validate MQTT configuration and create client
-    if config_obj.mqtt_server_host and config_obj.mqtt_server_port:
-        client = aiomqtt.Client(config_obj.mqtt_server_host, port=config_obj.mqtt_server_port, logger=logger)
-    else:
-        raise ValueError("Invalid MQTT configuration: host and port must be specified.")
+    # AIDEV-NOTE: Load MQTT configuration from environment variables
+    mqtt_config = MqttConfig()
+    client = aiomqtt.Client(
+        mqtt_config.host,
+        port=mqtt_config.port,
+        username=mqtt_config.username,
+        password=mqtt_config.password,
+        logger=logger,
+    )
     # AIDEV-NOTE: Main application loop with automatic MQTT reconnection
     while True:
         try:
@@ -77,7 +81,7 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
 
                 # AIDEV-NOTE: Get Postgres connection string from environment
                 postgres_config = PostgresConfig()
-                connection_string = postgres_config.connection_string_async
+                connection_string = str(postgres_config.connection_string_async)
 
                 # AIDEV-NOTE: Create async engine for database operations
                 engine = create_async_engine(connection_string)
