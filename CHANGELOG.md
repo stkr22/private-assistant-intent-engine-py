@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.1.0...v1.1.1) (2026-01-01)
+
+
+### Bug Fixes
+
+* :recycle: use MqttConfig from private-assistant-commons [AI] ([d4be945](https://github.com/stkr22/private-assistant-intent-engine-py/commit/d4be9454caa3732e8d406411019c557573bc9895))
+
 ## [1.1.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.0.4...v1.1.0) (2025-12-15)
 
 
