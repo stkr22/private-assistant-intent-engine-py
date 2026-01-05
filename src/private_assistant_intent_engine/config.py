@@ -8,8 +8,27 @@ MQTT broker configuration is handled separately via MqttConfig from
 private_assistant_commons, which reads from MQTT_* environment variables.
 """
 
-from pydantic import field_validator
+from private_assistant_commons import SkillConfig
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _get_default_device_update_topic() -> str:
+    """Get device update topic from SkillConfig.
+
+    Returns:
+        The configured device update topic from SkillConfig
+    """
+    return SkillConfig().device_update_topic
+
+
+def _get_default_intent_result_topic() -> str:
+    """Get intent analysis result topic from SkillConfig.
+
+    Returns:
+        The configured intent analysis result topic from SkillConfig
+    """
+    return SkillConfig().intent_analysis_result_topic
 
 
 class Config(BaseSettings):
@@ -28,6 +47,7 @@ class Config(BaseSettings):
     Attributes:
         client_request_subscription: MQTT topic pattern for incoming requests
         intent_result_topic: MQTT topic for publishing analysis results
+        device_update_topic: MQTT topic for device update notifications
         spacy_model: Name of SpaCy language model to load
         intent_patterns_path: Optional path to custom intent patterns YAML file
     """
@@ -40,8 +60,9 @@ class Config(BaseSettings):
     )
 
     # MQTT Topic Configuration
-    client_request_subscription: str = "assistant/comms_bridge/+/+/input"
-    intent_result_topic: str = "assistant/intent_engine/result"
+    client_request_subscription: str = "assistant/ground_station/+/+/input"
+    intent_result_topic: str = Field(default_factory=_get_default_intent_result_topic)
+    device_update_topic: str = Field(default_factory=_get_default_device_update_topic)
 
     # NLP Model Configuration
     spacy_model: str = "en_core_web_md"

@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 
 import aiomqtt
-from private_assistant_commons import ClassifiedIntent, ClientRequest, IntentRequest, mqtt_tools
+from private_assistant_commons import ClassifiedIntent, ClientRequest, IntentRequest
 from pydantic import ValidationError
 
 from private_assistant_intent_engine import config, exceptions
@@ -47,11 +47,6 @@ class IntentEngine:
     ):
         self.config_obj: config.Config = config_obj
         self.mqtt_client: aiomqtt.Client = mqtt_client
-
-        # AIDEV-NOTE: MQTT topic pattern compilation for efficient message routing
-        self.client_request_pattern: re.Pattern = mqtt_tools.mqtt_pattern_to_regex(
-            self.config_obj.client_request_subscription
-        )
         self.logger = logger
 
         # AIDEV-NOTE: Command splitting regex supports compound commands like "turn on lights, in addition set temp"
@@ -280,15 +275,12 @@ class IntentEngine:
             This method runs indefinitely until the MQTT connection is closed.
             Message processing errors are logged but don't stop the loop.
         """
-        # AIDEV-NOTE: Compile device update pattern for efficient matching
-        device_update_pattern = mqtt_tools.mqtt_pattern_to_regex("assistant/global_device_update")
-
         # AIDEV-NOTE: Main message processing loop - critical performance path
         async for message in client.messages:
             self.logger.debug("Received message on topic %s", message.topic)
 
             # AIDEV-NOTE: Handle device update notifications
-            if self.device_registry and device_update_pattern.match(message.topic.value):
+            if self.device_registry and message.topic.matches(self.device_registry.device_update_topic):
                 payload_str = self.decode_message_payload(message.payload)
                 if payload_str is not None:
                     try:
@@ -298,7 +290,7 @@ class IntentEngine:
                         self.error_metrics["device_update_errors"] += 1
 
             # Filter messages by topic pattern for efficient routing
-            elif self.client_request_pattern.match(message.topic.value):
+            elif message.topic.matches(self.config_obj.client_request_subscription):
                 payload_str = self.decode_message_payload(message.payload)
                 if payload_str is not None:
                     # Error handling ensures message processing failures don't stop the loop

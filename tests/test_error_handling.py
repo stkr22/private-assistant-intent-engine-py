@@ -152,10 +152,16 @@ async def test_message_loop_continues_after_error(intent_engine):
     topic_pattern = "assistant/comms_bridge/test/test/input"
 
     # Create mock messages with different payloads
+    # Mock topic with matches() method that returns True for the pattern
+    def make_mock_topic(topic_value):
+        topic_mock = Mock(value=topic_value)
+        topic_mock.matches = Mock(return_value=True)
+        return topic_mock
+
     messages = [
-        Mock(topic=Mock(value=topic_pattern), payload=b"{ invalid json }"),  # Will fail
+        Mock(topic=make_mock_topic(topic_pattern), payload=b"{ invalid json }"),  # Will fail
         Mock(
-            topic=Mock(value=topic_pattern),
+            topic=make_mock_topic(topic_pattern),
             payload=b'{"id": "d69b6bd5-188b-4442-bdf3-61aaef1e2594", '
             b'"room": "test", "output_topic": "test/out", "text": "valid"}',
         ),  # Will succeed
@@ -172,7 +178,7 @@ async def test_message_loop_continues_after_error(intent_engine):
     # Process messages
     message_count = 0
     async for message in client_mock.messages:
-        if intent_engine.client_request_pattern.match(message.topic.value):
+        if message.topic.matches(intent_engine.config_obj.client_request_subscription):
             payload_str = intent_engine.decode_message_payload(message.payload)
             if payload_str is not None:
                 try:

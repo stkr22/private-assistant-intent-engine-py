@@ -22,6 +22,7 @@ def test_load_valid_config():
 
     assert config.client_request_subscription == "test/+/+/input"
     assert config.intent_result_topic == "test/result"
+    assert config.device_update_topic == "test/device_updates"
     assert config.spacy_model == "en_core_web_sm"
 
 
