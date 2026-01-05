@@ -13,7 +13,7 @@ class MockDeviceRegistry:
     test data for device and type matching.
     """
 
-    def __init__(self):
+    def __init__(self, device_update_topic: str = "assistant/global_device_update"):
         # Create device types
         self.light_type = DeviceType(id=uuid4(), name="light")
         self.spotify_type = DeviceType(id=uuid4(), name="spotify")
@@ -81,6 +81,11 @@ class MockDeviceRegistry:
             self.desk_device,
         ]
 
+        # Device update tracking
+        self.device_update_topic = device_update_topic
+        self.setup_subscriptions_called = False
+        self.handle_device_update_calls = 0
+
     def match_devices(self, text: str) -> list[GlobalDevice]:
         """Match text against device patterns.
 
@@ -120,6 +125,14 @@ class MockDeviceRegistry:
             if device_type.name.lower() == lemmatized_text.lower():
                 return device_type
         return None
+
+    async def setup_subscriptions(self) -> None:
+        """Mock setup_subscriptions to track calls."""
+        self.setup_subscriptions_called = True
+
+    async def handle_device_update(self, _payload: str) -> None:
+        """Mock handle_device_update to track calls."""
+        self.handle_device_update_calls += 1
 
 
 @pytest.fixture

@@ -9,7 +9,6 @@ import logging
 from collections.abc import AsyncIterator
 
 import aiomqtt
-from private_assistant_commons import mqtt_tools
 from private_assistant_commons.database import DeviceType, GlobalDevice
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlmodel import select
@@ -44,9 +43,11 @@ class DeviceRegistry:
         postgres_connection_string: str,
         mqtt_client: aiomqtt.Client,
         logger: logging.Logger,
+        device_update_topic: str = "assistant/global_device_update",
     ):
         self.logger = logger
         self.mqtt_client = mqtt_client
+        self.device_update_topic = device_update_topic
 
         # AIDEV-NOTE: Create async engine for Postgres access
         self.engine = create_async_engine(
@@ -103,9 +104,8 @@ class DeviceRegistry:
         Subscribes to the global_device_update channel to receive notifications
         when skills add, update, or remove devices from the registry.
         """
-        device_update_topic = "assistant/global_device_update"
-        await self.mqtt_client.subscribe(topic=device_update_topic, qos=1)
-        self.logger.info("Subscribed to device updates on topic: %s", device_update_topic)
+        await self.mqtt_client.subscribe(topic=self.device_update_topic, qos=1)
+        self.logger.info("Subscribed to device updates on topic: %s", self.device_update_topic)
 
     async def handle_device_update(self, _payload: str) -> None:
         """Handle device update notifications from MQTT.
@@ -116,7 +116,7 @@ class DeviceRegistry:
         Args:
             _payload: MQTT message payload (unused, trigger-only)
         """
-        self.logger.debug("Received device update notification, refreshing registry")
+        self.logger.info("Received device update notification, refreshing registry")
         await self.refresh_devices()
         await self.refresh_device_types()
 
@@ -190,10 +190,8 @@ class DeviceRegistry:
         Yields:
             MQTT messages from the device update topic
         """
-        device_update_pattern = mqtt_tools.mqtt_pattern_to_regex("assistant/global_device_update")
-
         async for message in client.messages:
-            if device_update_pattern.match(message.topic.value):
+            if message.topic.matches(self.device_update_topic):
                 yield message
 
     async def close(self) -> None:

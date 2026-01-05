@@ -1,4 +1,5 @@
 client_request_subscription: "test/+/+/input"
 intent_result_topic: "test/result"
+device_update_topic: "test/device_updates"
 spacy_model: "en_core_web_sm"
 # intent_patterns_path: "/path/to/custom/intent_patterns.yaml"  # Optional: custom intent patterns

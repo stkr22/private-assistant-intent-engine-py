@@ -101,6 +101,7 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                     postgres_connection_string=connection_string,
                     mqtt_client=client,
                     logger=logger,
+                    device_update_topic=config_obj.device_update_topic,
                 )
                 await device_registry.initialize()
                 await device_registry.setup_subscriptions()
