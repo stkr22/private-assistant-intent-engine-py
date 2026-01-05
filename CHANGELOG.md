@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.1.1...v1.2.0) (2026-01-05)
+
+
+### Features
+
+* :wrench: configurable device update topic with aiomqtt matching [AI] ([1e9d3db](https://github.com/stkr22/private-assistant-intent-engine-py/commit/1e9d3db9999377eae6d2ef1bfb178dbc3aa5f1e8))
+* :wrench: configurable device update topic with aiomqtt matching [AI] ([30bf27b](https://github.com/stkr22/private-assistant-intent-engine-py/commit/30bf27b5803ca5613df5ee48723fcd5e1b97b611))
+
 ## [1.1.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.1.0...v1.1.1) (2026-01-01)
 
 
