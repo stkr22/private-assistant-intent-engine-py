@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.2.0...v1.3.0) (2026-01-28)
+
+
+### Features
+
+* :card_file_box: implement database-backed intent patterns with MQTT refresh ([31a9f41](https://github.com/stkr22/private-assistant-intent-engine-py/commit/31a9f413f347b74758b367aa9af874ae8c1111e1))
+* :card_file_box: implement database-backed intent patterns with MQTT refresh ([f0c555a](https://github.com/stkr22/private-assistant-intent-engine-py/commit/f0c555a255b3ab07067e7cea89c3c50c8ec64a39))
+
 ## [1.2.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.1.1...v1.2.0) (2026-01-05)
 
 
