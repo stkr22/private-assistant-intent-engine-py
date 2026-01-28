@@ -14,7 +14,9 @@ from private_assistant_commons import ClassifiedIntent, ClientRequest, IntentReq
 from pydantic import ValidationError
 
 from private_assistant_intent_engine import config, exceptions
+from private_assistant_intent_engine.device_registry import DeviceRegistry
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
+from private_assistant_intent_engine.intent_patterns_registry import IntentPatternsRegistry
 
 
 class IntentEngine:
@@ -36,15 +38,19 @@ class IntentEngine:
         mqtt_client: Async MQTT client for message handling
         logger: Logger instance for debugging and monitoring
         classifier: Intent classifier instance (initialized externally)
+        device_registry: Optional device registry for pattern-based device matching
+        pattern_registry: Optional pattern registry for dynamic intent patterns
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         config_obj: config.Config,
         mqtt_client: aiomqtt.Client,
         logger: logging.Logger,
         classifier: IntentClassifier,
+        device_registry: DeviceRegistry | None = None,
+        pattern_registry: IntentPatternsRegistry | None = None,
     ):
         """Initialize IntentEngine with configuration and dependencies."""
         self.config_obj: config.Config = config_obj
@@ -58,8 +64,11 @@ class IntentEngine:
         # AIDEV-NOTE: Intent classifier initialized externally with all dependencies
         self.classifier = classifier
 
-        # AIDEV-NOTE: Device registry for pattern-based specific device matching (from classifier)
-        self.device_registry = classifier.entity_extractor.device_registry
+        # AIDEV-NOTE: Device registry for pattern-based specific device matching
+        self.device_registry = device_registry
+
+        # AIDEV-NOTE: Pattern registry for dynamic intent pattern updates
+        self.pattern_registry = pattern_registry
 
         # AIDEV-NOTE: Error metrics for monitoring failure rates
         self.error_metrics: dict[str, int] = defaultdict(int)
@@ -255,6 +264,10 @@ class IntentEngine:
         if self.device_registry:
             await self.device_registry.setup_subscriptions()
 
+        # AIDEV-NOTE: Subscribe to pattern updates if registry is available
+        if self.pattern_registry:
+            await self.pattern_registry.setup_subscriptions()
+
     def get_error_metrics(self) -> dict[str, int]:
         """Get current error metrics for monitoring.
 
@@ -296,6 +309,16 @@ class IntentEngine:
                     except Exception as e:
                         self.logger.error("Error handling device update: %s", str(e))
                         self.error_metrics["device_update_errors"] += 1
+
+            # AIDEV-NOTE: Handle pattern update notifications
+            if self.pattern_registry and message.topic.matches(self.pattern_registry.pattern_update_topic):
+                payload_str = self.decode_message_payload(message.payload)
+                if payload_str is not None:
+                    try:
+                        await self.pattern_registry.handle_pattern_update(payload_str)
+                    except Exception as e:
+                        self.logger.error("Error handling pattern update: %s", str(e))
+                        self.error_metrics["pattern_update_errors"] += 1
 
             # Filter messages by topic pattern for efficient routing
             elif message.topic.matches(self.config_obj.client_request_subscription):

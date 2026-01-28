@@ -22,7 +22,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from private_assistant_intent_engine import config, intent_engine
 from private_assistant_intent_engine.device_registry import DeviceRegistry
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
-from private_assistant_intent_engine.intent_patterns import load_intent_patterns
+from private_assistant_intent_engine.intent_patterns_registry import IntentPatternsRegistry
 
 app = typer.Typer()
 
@@ -94,9 +94,15 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                     rooms = list(result.all())
                     logger.info("Loaded %d rooms from database", len(rooms))
 
-                # AIDEV-NOTE: Load intent patterns from YAML or use defaults
-                intent_patterns = load_intent_patterns(config_obj.intent_patterns_path)
-                logger.info("Loaded %d intent patterns", len(intent_patterns))
+                # AIDEV-NOTE: Initialize intent patterns registry from database
+                pattern_registry = IntentPatternsRegistry(
+                    postgres_connection_string=connection_string,
+                    mqtt_client=client,
+                    logger=logger,
+                    pattern_update_topic=config_obj.pattern_update_topic,
+                )
+                await pattern_registry.initialize()
+                await pattern_registry.setup_subscriptions()
 
                 # AIDEV-NOTE: Initialize device registry for pattern-based device matching
                 device_registry = DeviceRegistry(
@@ -112,7 +118,7 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                 classifier = IntentClassifier(
                     config_obj=config_obj,
                     nlp_model=nlp_model,
-                    intent_patterns=intent_patterns,
+                    pattern_registry=pattern_registry,
                     rooms=rooms,
                     device_registry=device_registry,
                 )
@@ -123,6 +129,8 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
                     config_obj=config_obj,
                     logger=logger,
                     classifier=classifier,
+                    device_registry=device_registry,
+                    pattern_registry=pattern_registry,
                 )
 
                 # Set up MQTT topic subscriptions

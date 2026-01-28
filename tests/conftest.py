@@ -5,6 +5,8 @@ from uuid import uuid4
 import pytest
 from private_assistant_commons.database import DeviceType, GlobalDevice, Room
 
+from private_assistant_intent_engine.intent_patterns import load_intent_patterns
+
 
 class MockDeviceRegistry:
     """Mock device registry for testing.
@@ -139,6 +141,34 @@ class MockDeviceRegistry:
 def mock_device_registry():
     """Provide a mock device registry for testing."""
     return MockDeviceRegistry()
+
+
+class MockPatternRegistry:
+    """Mock pattern registry for testing.
+
+    Provides a minimal implementation of IntentPatternsRegistry with
+    patterns loaded from the default configuration.
+    """
+
+    def __init__(self, pattern_update_topic: str = "assistant/intent_pattern_update"):
+        self.patterns = load_intent_patterns()
+        self.pattern_update_topic = pattern_update_topic
+        self.setup_subscriptions_called = False
+        self.handle_pattern_update_calls = 0
+
+    async def setup_subscriptions(self) -> None:
+        """Mock setup_subscriptions to track calls."""
+        self.setup_subscriptions_called = True
+
+    async def handle_pattern_update(self, _payload: str) -> None:
+        """Mock handle_pattern_update to track calls."""
+        self.handle_pattern_update_calls += 1
+
+
+@pytest.fixture
+def mock_pattern_registry():
+    """Provide a mock pattern registry for testing."""
+    return MockPatternRegistry()
 
 
 @pytest.fixture

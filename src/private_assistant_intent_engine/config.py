@@ -50,6 +50,7 @@ class Config(BaseSettings):
         client_request_subscription: MQTT topic pattern for incoming requests
         intent_result_topic: MQTT topic for publishing analysis results
         device_update_topic: MQTT topic for device update notifications
+        pattern_update_topic: MQTT topic for intent pattern update notifications
         spacy_model: Name of SpaCy language model to load
         intent_patterns_path: Optional path to custom intent patterns YAML file
 
@@ -66,6 +67,7 @@ class Config(BaseSettings):
     client_request_subscription: str = "assistant/ground_station/+/+/input"
     intent_result_topic: str = Field(default_factory=_get_default_intent_result_topic)
     device_update_topic: str = Field(default_factory=_get_default_device_update_topic)
+    pattern_update_topic: str = "assistant/intent_pattern_update"
 
     # NLP Model Configuration
     spacy_model: str = "en_core_web_md"

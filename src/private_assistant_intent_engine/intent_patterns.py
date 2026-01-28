@@ -178,21 +178,21 @@ class IntentPatternsConfig(BaseModel):
                 ),
                 # Query intents
                 IntentPatternConfig(
-                    intent_type=IntentType.QUERY_STATUS,
-                    keywords=["what is the state", "check state"],
-                    context_hints=[],
+                    intent_type=IntentType.DEVICE_QUERY,
+                    keywords=["what is the state", "check state", "status"],
+                    context_hints=["device", "devices", "light", "lights"],
                     negative_keywords=[],
                 ),
                 IntentPatternConfig(
-                    intent_type=IntentType.QUERY_LIST,
-                    keywords=["list", "what are", "which"],
-                    context_hints=["devices", "lights", "windows", "all"],
+                    intent_type=IntentType.DATA_QUERY,
+                    keywords=["list", "what are", "which", "what time", "current time", "what is the time"],
+                    context_hints=["devices", "lights", "windows", "all", "time"],
                     negative_keywords=[],
                 ),
                 IntentPatternConfig(
-                    intent_type=IntentType.QUERY_TIME,
-                    keywords=["what time", "current time", "what is the time"],
-                    context_hints=[],
+                    intent_type=IntentType.MEDIA_QUERY,
+                    keywords=["what is playing", "current song", "what song"],
+                    context_hints=["music", "song", "playlist", "media"],
                     negative_keywords=[],
                 ),
                 # Scene and scheduling
@@ -212,19 +212,6 @@ class IntentPatternsConfig(BaseModel):
                     intent_type=IntentType.SCHEDULE_CANCEL,
                     keywords=["cancel", "stop", "delete", "remove"],
                     context_hints=["schedule", "timer", "reminder", "alarm"],
-                    negative_keywords=[],
-                ),
-                # System intents
-                IntentPatternConfig(
-                    intent_type=IntentType.SYSTEM_HELP,
-                    keywords=["help", "how to", "what can"],
-                    context_hints=["help", "commands", "do"],
-                    negative_keywords=[],
-                ),
-                IntentPatternConfig(
-                    intent_type=IntentType.SYSTEM_REFRESH,
-                    keywords=["refresh", "reload", "update", "sync"],
-                    context_hints=["devices", "state", "status", "system"],
                     negative_keywords=[],
                 ),
             ]

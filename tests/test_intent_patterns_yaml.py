@@ -108,7 +108,7 @@ patterns:
             # Check all default patterns are still present
             intent_types = [p.intent_type for p in config.patterns]
             assert IntentType.MEDIA_PLAY in intent_types
-            assert IntentType.QUERY_STATUS in intent_types
+            assert IntentType.DEVICE_QUERY in intent_types
         finally:
             Path(yaml_path).unlink()
 
@@ -230,8 +230,15 @@ class TestIntentClassifierWithCustomPatterns:
             )
         ]
 
+        # Create a mock pattern registry with custom patterns
+        class CustomPatternRegistry:
+            def __init__(self):
+                self.patterns = custom_patterns
+                self.pattern_update_topic = "assistant/intent_pattern_update"
+
         config_obj = Config()
-        classifier = IntentClassifier(config_obj, nlp_model, custom_patterns, mock_rooms)
+        custom_registry = CustomPatternRegistry()
+        classifier = IntentClassifier(config_obj, nlp_model, custom_registry, mock_rooms)
 
         # Should classify with custom pattern
         results = classifier.classify("activate the device")
@@ -244,9 +251,16 @@ class TestIntentClassifierWithCustomPatterns:
         # Load patterns externally
         patterns = load_intent_patterns()
 
+        # Create a mock pattern registry with loaded patterns
+        class LoadedPatternRegistry:
+            def __init__(self):
+                self.patterns = patterns
+                self.pattern_update_topic = "assistant/intent_pattern_update"
+
         # Inject into classifier
         config_obj = Config()
-        classifier = IntentClassifier(config_obj, nlp_model, patterns, mock_rooms)
+        loaded_registry = LoadedPatternRegistry()
+        classifier = IntentClassifier(config_obj, nlp_model, loaded_registry, mock_rooms)
 
         # Should work normally
         results = classifier.classify("turn on the lights")

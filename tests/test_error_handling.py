@@ -11,18 +11,16 @@ from private_assistant_commons import ClientRequest
 from private_assistant_intent_engine import config
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
 from private_assistant_intent_engine.intent_engine import IntentEngine
-from private_assistant_intent_engine.intent_patterns import load_intent_patterns
 
 
 @pytest.fixture
-def intent_engine(mock_rooms):
+def intent_engine(mock_rooms, mock_pattern_registry):
     """Create an IntentEngine instance for testing."""
     config_mock = config.Config()
     mqtt_client_mock = AsyncMock()
     logger_mock = Mock()
     nlp_model = spacy.load("en_core_web_md")
-    intent_patterns = load_intent_patterns()
-    classifier = IntentClassifier(config_mock, nlp_model, intent_patterns, mock_rooms)
+    classifier = IntentClassifier(config_mock, nlp_model, mock_pattern_registry, mock_rooms)
     return IntentEngine(config_mock, mqtt_client_mock, logger_mock, classifier)
 
 
