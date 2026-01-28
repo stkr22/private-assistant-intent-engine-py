@@ -21,6 +21,7 @@ Example:
     >>> import asyncio
     >>> from private_assistant_intent_engine.main import start_intent_engine
     >>> asyncio.run(start_intent_engine(Path("config.yaml")))
+
 """
 
 # AIDEV-NOTE: Export main components for programmatic usage

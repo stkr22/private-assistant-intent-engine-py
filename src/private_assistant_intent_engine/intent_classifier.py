@@ -27,6 +27,7 @@ class IntentClassifier:
         intent_patterns: List of intent pattern configurations (load via config.load_intent_patterns())
         rooms: List of Room objects from database
         device_registry: Optional device registry for device-aware classification
+
     """
 
     def __init__(
@@ -37,6 +38,7 @@ class IntentClassifier:
         rooms: list[Room],
         device_registry: DeviceRegistry | None = None,
     ):
+        """Initialize IntentClassifier with configuration and NLP components."""
         self.config_obj = config_obj
         self.intent_patterns = intent_patterns
         self.entity_extractor = EntityExtractor(nlp_model, rooms, device_registry=device_registry)
@@ -52,6 +54,7 @@ class IntentClassifier:
 
         Returns:
             List of (IntentType, confidence) tuples sorted by confidence (highest first)
+
         """
         text_lower = text.lower()
         results: list[tuple[IntentType, float]] = []
@@ -85,6 +88,7 @@ class IntentClassifier:
 
         Returns:
             Confidence score between 0.0 and 1.0
+
         """
         # AIDEV-NOTE: Check for negative keywords first - they exclude the intent
         if any(neg_keyword in text_lower for neg_keyword in pattern.negative_keywords):
@@ -133,5 +137,6 @@ class IntentClassifier:
 
         Returns:
             Dictionary mapping entity type to list of Entity objects
+
         """
         return self.entity_extractor.extract(text)

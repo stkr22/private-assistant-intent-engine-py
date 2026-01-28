@@ -34,6 +34,7 @@ def main(config_path: Annotated[pathlib.Path, typer.Argument(envvar="PRIVATE_ASS
     Args:
         config_path: Path to YAML configuration file. Can be set via
                     PRIVATE_ASSISTANT_CONFIG_PATH environment variable.
+
     """
     asyncio.run(start_intent_engine(config_path))
 
@@ -55,6 +56,7 @@ async def start_intent_engine(config_path: pathlib.Path) -> None:
     Raises:
         OSError: If SpaCy model cannot be loaded
         ConfigValidationError: If configuration validation fails
+
     """
     # AIDEV-NOTE: Load and validate configuration from YAML file
     config_obj = load_config(config_path, config_class=config.Config)

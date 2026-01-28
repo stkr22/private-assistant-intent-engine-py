@@ -36,6 +36,7 @@ class DeviceRegistry:
         postgres_connection_string: Async Postgres connection URL
         mqtt_client: Async MQTT client for device updates
         logger: Logger instance for debugging and monitoring
+
     """
 
     def __init__(
@@ -45,6 +46,7 @@ class DeviceRegistry:
         logger: logging.Logger,
         device_update_topic: str = "assistant/global_device_update",
     ):
+        """Initialize DeviceRegistry with database connection and MQTT client."""
         self.logger = logger
         self.mqtt_client = mqtt_client
         self.device_update_topic = device_update_topic
@@ -115,6 +117,7 @@ class DeviceRegistry:
 
         Args:
             _payload: MQTT message payload (unused, trigger-only)
+
         """
         self.logger.info("Received device update notification, refreshing registry")
         await self.refresh_devices()
@@ -136,6 +139,7 @@ class DeviceRegistry:
         Note:
             Text should be lowercased before calling this method for
             case-insensitive matching.
+
         """
         # AIDEV-NOTE: Sort devices by longest pattern first for most specific matches
         # AIDEV-TODO: Implement fuzzy matching for better UX (issue to be created)
@@ -171,6 +175,7 @@ class DeviceRegistry:
 
         Example:
             "lights" → lemmatized to "light" → matches DeviceType(name="light")
+
         """
         for device_type in self.device_types:
             if device_type.name.lower() == lemmatized_text.lower():
@@ -189,6 +194,7 @@ class DeviceRegistry:
 
         Yields:
             MQTT messages from the device update topic
+
         """
         async for message in client.messages:
             if message.topic.matches(self.device_update_topic):

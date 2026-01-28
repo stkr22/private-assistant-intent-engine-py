@@ -1,4 +1,7 @@
 .local_config.yaml
+# claude
+settings.local.json
+
 # Python version file
 _version.py
 

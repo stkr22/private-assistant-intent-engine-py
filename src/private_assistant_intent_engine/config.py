@@ -18,6 +18,7 @@ def _get_default_device_update_topic() -> str:
 
     Returns:
         The configured device update topic from SkillConfig
+
     """
     return SkillConfig().device_update_topic
 
@@ -27,6 +28,7 @@ def _get_default_intent_result_topic() -> str:
 
     Returns:
         The configured intent analysis result topic from SkillConfig
+
     """
     return SkillConfig().intent_analysis_result_topic
 
@@ -50,6 +52,7 @@ class Config(BaseSettings):
         device_update_topic: MQTT topic for device update notifications
         spacy_model: Name of SpaCy language model to load
         intent_patterns_path: Optional path to custom intent patterns YAML file
+
     """
 
     model_config = SettingsConfigDict(
@@ -83,6 +86,7 @@ class Config(BaseSettings):
 
         Raises:
             ValueError: If model name is empty or invalid
+
         """
         if not v or not isinstance(v, str):
             raise ValueError("SpaCy model name must be a non-empty string")

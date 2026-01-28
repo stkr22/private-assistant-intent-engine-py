@@ -187,7 +187,7 @@ class TestIntentClassifierIntegration:
         results = engine.classify_intent(client_request)
 
         assert results is not None
-        assert len(results) == 2  # noqa: PLR2004
+        assert len(results) == 2
         assert results[0].intent_type == IntentType.DEVICE_ON
         assert results[1].intent_type == IntentType.DEVICE_SET
 
