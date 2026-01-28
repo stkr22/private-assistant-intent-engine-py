@@ -37,6 +37,7 @@ def parse_number(text: str, logger: logging.Logger | None = None) -> int | None:
         20
         >>> parse_number("invalid")
         None
+
     """
     try:
         # AIDEV-NOTE: Use float conversion first to handle decimal strings like "20.0"
@@ -74,6 +75,7 @@ def extract_numbers_from_text(doc: Doc | Span, logger: logging.Logger | None = N
             normalized_value=20,
             metadata={"previous_token": "to", "next_token": "degrees"}
         )]
+
     """
     numbers_found = []
 

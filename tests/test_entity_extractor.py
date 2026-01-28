@@ -109,7 +109,7 @@ class TestEntityExtractor:
         numbers = entities[EntityType.DURATION.value]
         assert len(numbers) == 1
         duration_entity = numbers[0]
-        assert duration_entity.normalized_value == 12.0  # noqa: PLR2004
+        assert duration_entity.normalized_value == 12.0
 
         # Should have duration unit metadata
         assert duration_entity.metadata
@@ -129,7 +129,7 @@ class TestEntityExtractor:
         numbers = entities[EntityType.NUMBER.value]
         assert len(numbers) > 0
         number_entity = numbers[0]
-        assert number_entity.normalized_value == 22.0  # noqa: PLR2004
+        assert number_entity.normalized_value == 22.0
 
         # Should detect celsius unit
         assert number_entity.metadata
@@ -148,7 +148,7 @@ class TestEntityExtractor:
         numbers = entities[EntityType.NUMBER.value]
         assert len(numbers) > 0
         number_entity = numbers[0]
-        assert number_entity.normalized_value == 28.0  # noqa: PLR2004
+        assert number_entity.normalized_value == 28.0
 
         # Should detect celsius unit from °C symbol
         assert number_entity.metadata
@@ -167,7 +167,7 @@ class TestEntityExtractor:
         numbers = entities[EntityType.NUMBER.value]
         assert len(numbers) > 0
         number_entity = numbers[0]
-        assert number_entity.normalized_value == 75.0  # noqa: PLR2004
+        assert number_entity.normalized_value == 75.0
 
         # Should detect fahrenheit unit from °F symbol
         assert number_entity.metadata
@@ -180,13 +180,13 @@ class TestEntityExtractor:
 
         assert EntityType.DURATION.value in entities
         durations = entities[EntityType.DURATION.value]
-        assert len(durations) >= 2  # noqa: PLR2004
+        assert len(durations) >= 2
         minute_entity = [n for n in durations if n.metadata.get("unit") == "minute"]
         assert len(minute_entity) == 1
         assert minute_entity[0].normalized_value == 1.0
         seconds_entity = [n for n in durations if n.metadata.get("unit") == "second"]
         assert len(seconds_entity) == 1
-        assert seconds_entity[0].normalized_value == 30  # noqa: PLR2004
+        assert seconds_entity[0].normalized_value == 30
 
     def test_room_and_device_extraction(self, entity_extractor_with_registry: EntityExtractor):
         """Test: 'Turn on bedroom lights'
@@ -251,7 +251,7 @@ class TestEntityExtractor:
         # Should extract both devices from registry
         assert EntityType.DEVICE.value in entities
         devices = entities[EntityType.DEVICE.value]
-        assert len(devices) == 2  # noqa: PLR2004
+        assert len(devices) == 2
 
         # Extract device names
         device_names = {device.normalized_value for device in devices}

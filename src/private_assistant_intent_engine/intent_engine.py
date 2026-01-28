@@ -36,6 +36,7 @@ class IntentEngine:
         mqtt_client: Async MQTT client for message handling
         logger: Logger instance for debugging and monitoring
         classifier: Intent classifier instance (initialized externally)
+
     """
 
     def __init__(
@@ -45,6 +46,7 @@ class IntentEngine:
         logger: logging.Logger,
         classifier: IntentClassifier,
     ):
+        """Initialize IntentEngine with configuration and dependencies."""
         self.config_obj: config.Config = config_obj
         self.mqtt_client: aiomqtt.Client = mqtt_client
         self.logger = logger
@@ -89,6 +91,7 @@ class IntentEngine:
                 },
                 raw_text="Turn on the lights in kitchen"
             )]
+
         """
         classified_intents = []
 
@@ -156,6 +159,7 @@ class IntentEngine:
         Note:
             Errors are logged but processing continues to maintain system stability.
             Individual message failures do not stop the message processing loop.
+
         """
         try:
             # Parse JSON payload with error handling
@@ -225,6 +229,7 @@ class IntentEngine:
 
         Note:
             Unsupported payload types are logged as warnings.
+
         """
         if isinstance(payload, bytes | bytearray):
             return payload.decode("utf-8")
@@ -241,6 +246,7 @@ class IntentEngine:
 
         Raises:
             MqttError: If subscription setup fails
+
         """
         await self.mqtt_client.subscribe(topic=self.config_obj.client_request_subscription, qos=1)
         self.logger.info("Subscribed to intent analysis result topic: %s", self.config_obj.client_request_subscription)
@@ -254,6 +260,7 @@ class IntentEngine:
 
         Returns:
             Dictionary of error type to count mappings
+
         """
         return dict(self.error_metrics)
 
@@ -262,7 +269,7 @@ class IntentEngine:
         self.error_metrics.clear()
 
     async def listen_to_messages(self, client: aiomqtt.Client) -> None:
-        """Main message processing loop for handling MQTT messages.
+        """Process MQTT messages in main event loop.
 
         Continuously listens for incoming MQTT messages, filters by topic pattern,
         and dispatches appropriate handlers. This is the core event loop of the
@@ -274,6 +281,7 @@ class IntentEngine:
         Note:
             This method runs indefinitely until the MQTT connection is closed.
             Message processing errors are logged but don't stop the loop.
+
         """
         # AIDEV-NOTE: Main message processing loop - critical performance path
         async for message in client.messages:

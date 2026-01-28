@@ -39,6 +39,7 @@ class EntityExtractor:
         rooms: List of Room objects from database
         logger: Optional logger for debugging
         device_registry: Optional device registry for device matching
+
     """
 
     def __init__(
@@ -48,6 +49,7 @@ class EntityExtractor:
         logger: logging.Logger | None = None,
         device_registry: DeviceRegistry | None = None,
     ):
+        """Initialize EntityExtractor with NLP model and room data."""
         self.nlp = nlp_model
         # AIDEV-NOTE: Store rooms as dict with lowercase names for O(1) lookup
         self.rooms = {room.name.lower(): room for room in rooms}
@@ -91,6 +93,7 @@ class EntityExtractor:
         Example:
             "lights" → "light"
             "switches" → "switch"
+
         """
         doc = self.nlp(text)
         return " ".join([token.lemma_.lower() for token in doc])
@@ -113,6 +116,7 @@ class EntityExtractor:
                 "number": [Entity(type=NUMBER, normalized_value=20,
                                   metadata={"unit": "temperature"})]
             }
+
         """
         doc = self.nlp(text)
         entities: list[Entity] = []
@@ -140,6 +144,7 @@ class EntityExtractor:
 
         Returns:
             List of room Entity objects with room_id in metadata
+
         """
         text_lower = text.lower()
         detected_rooms: list[Room] = []
@@ -189,6 +194,7 @@ class EntityExtractor:
             "Turn on lights" → matches device type:
                 Entity(type=DEVICE, normalized_value="light",
                        metadata={"device_type": "light", "is_generic": True, "quantifier": "all"})
+
         """
         entities = []
         text_lower = doc.text.lower()
@@ -252,6 +258,7 @@ class EntityExtractor:
 
         Returns:
             Device type name (lowercase) or "unknown" if not found
+
         """
         if self.device_registry:
             for dt in self.device_registry.device_types:
@@ -272,6 +279,7 @@ class EntityExtractor:
 
         Returns:
             List of Entity objects (NUMBER or DURATION)
+
         """
         # Use existing number extraction
         number_entities = extract_numbers_from_text(doc, self.logger)
@@ -313,6 +321,7 @@ class EntityExtractor:
 
         Returns:
             Unit type string (celsius, minute, second, etc.) or None
+
         """
         if not number_entity.metadata:
             return None
@@ -346,6 +355,7 @@ class EntityExtractor:
 
         Args:
             entities: List of Entity objects to link
+
         """
         # Create index for quick lookups
         entities_by_type: dict[str, list[Entity]] = {}
@@ -390,6 +400,7 @@ class EntityExtractor:
 
         Returns:
             Dictionary mapping entity type names to entity lists
+
         """
         grouped: dict[str, list[Entity]] = defaultdict(list)
         for entity in entities:

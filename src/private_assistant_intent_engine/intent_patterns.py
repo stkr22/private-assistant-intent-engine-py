@@ -23,6 +23,7 @@ class IntentPatternConfig(BaseModel):
         keywords: Primary keywords that indicate this intent
         context_hints: Supporting words that strengthen intent confidence
         negative_keywords: Keywords that invalidate this intent match
+
     """
 
     intent_type: IntentType
@@ -43,6 +44,7 @@ class IntentPatternConfig(BaseModel):
 
         Raises:
             ValueError: If keywords list is empty
+
         """
         if not v:
             raise ValueError("Intent pattern keywords cannot be empty")
@@ -57,6 +59,7 @@ class IntentPatternsConfig(BaseModel):
 
     Attributes:
         patterns: List of intent pattern configurations
+
     """
 
     patterns: list[IntentPatternConfig] = Field(default_factory=list)
@@ -77,6 +80,7 @@ class IntentPatternsConfig(BaseModel):
         Raises:
             FileNotFoundError: If YAML file doesn't exist
             ValueError: If YAML is invalid
+
         """
         yaml_path = Path(yaml_path)
         if not yaml_path.exists():
@@ -109,6 +113,7 @@ class IntentPatternsConfig(BaseModel):
 
         Returns:
             IntentPatternsConfig with default patterns
+
         """
         # AIDEV-NOTE: Default patterns moved from INTENT_PATTERNS constant
         # AIDEV-QUESTION: Remove context hints in favor of combining keywords with entities devices/types found?
@@ -234,6 +239,7 @@ def load_intent_patterns(intent_patterns_path: str | Path | None = None) -> list
 
     Returns:
         List of IntentPatternConfig objects
+
     """
     if intent_patterns_path:
         patterns_config = IntentPatternsConfig.from_yaml(intent_patterns_path)
