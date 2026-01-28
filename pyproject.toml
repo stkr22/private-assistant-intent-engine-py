@@ -30,13 +30,14 @@ classifiers = [
 
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "private-assistant-commons~=5.5.0",
+    "private-assistant-commons~=6.1.0",
     "spacy~=3.8.7",
     "pydantic",
     "aiomqtt",
     "en-core-web-md",
     "text2num~=3.0.0",
     "pydantic-settings",
+    "typer~=0.21.1"
 ]
 
 [tool.uv.sources]

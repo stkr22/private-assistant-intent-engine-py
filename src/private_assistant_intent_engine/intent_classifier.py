@@ -13,6 +13,7 @@ from private_assistant_intent_engine import config
 from private_assistant_intent_engine.device_registry import DeviceRegistry
 from private_assistant_intent_engine.entity_extractor import EntityExtractor
 from private_assistant_intent_engine.intent_patterns import IntentPatternConfig
+from private_assistant_intent_engine.intent_patterns_registry import IntentPatternsRegistry
 
 
 class IntentClassifier:
@@ -24,7 +25,7 @@ class IntentClassifier:
     Args:
         config_obj: Configuration object containing settings
         nlp_model: SpaCy language model for NLP processing
-        intent_patterns: List of intent pattern configurations (load via config.load_intent_patterns())
+        pattern_registry: Intent patterns registry with database backend
         rooms: List of Room objects from database
         device_registry: Optional device registry for device-aware classification
 
@@ -34,13 +35,13 @@ class IntentClassifier:
         self,
         config_obj: config.Config,
         nlp_model: spacy.language.Language,
-        intent_patterns: list[IntentPatternConfig],
+        pattern_registry: IntentPatternsRegistry,
         rooms: list[Room],
         device_registry: DeviceRegistry | None = None,
     ):
         """Initialize IntentClassifier with configuration and NLP components."""
         self.config_obj = config_obj
-        self.intent_patterns = intent_patterns
+        self.pattern_registry = pattern_registry
         self.entity_extractor = EntityExtractor(nlp_model, rooms, device_registry=device_registry)
 
     def classify(self, text: str) -> list[tuple[IntentType, float]]:
@@ -59,7 +60,7 @@ class IntentClassifier:
         text_lower = text.lower()
         results: list[tuple[IntentType, float]] = []
 
-        for pattern in self.intent_patterns:
+        for pattern in self.pattern_registry.patterns:
             confidence = self._calculate_confidence(text_lower, pattern)
             if confidence > 0.0:
                 results.append((pattern.intent_type, confidence))

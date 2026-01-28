@@ -10,8 +10,9 @@ from collections.abc import AsyncIterator
 
 import aiomqtt
 from private_assistant_commons.database import DeviceType, GlobalDevice
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 class DeviceRegistry:
@@ -83,8 +84,8 @@ class DeviceRegistry:
         """
         async with AsyncSession(self.engine) as session:
             # AIDEV-NOTE: Load all devices from database
-            result = await session.execute(select(GlobalDevice))
-            self.devices = list(result.scalars().all())
+            results = await session.exec(select(GlobalDevice))
+            self.devices = list(results.all())
             self.logger.debug("Refreshed device registry: %d devices loaded", len(self.devices))
 
     async def refresh_device_types(self) -> None:
@@ -96,8 +97,8 @@ class DeviceRegistry:
         """
         async with AsyncSession(self.engine) as session:
             # AIDEV-NOTE: Load all device types from database
-            result = await session.execute(select(DeviceType))
-            self.device_types = list(result.scalars().all())
+            results = await session.exec(select(DeviceType))
+            self.device_types = list(results.all())
             self.logger.debug("Refreshed device types: %d types loaded", len(self.device_types))
 
     async def setup_subscriptions(self) -> None:

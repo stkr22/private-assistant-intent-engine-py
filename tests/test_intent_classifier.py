@@ -10,7 +10,6 @@ from private_assistant_commons import ClassifiedIntent, ClientRequest, EntityTyp
 from private_assistant_intent_engine import config
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
 from private_assistant_intent_engine.intent_engine import IntentEngine
-from private_assistant_intent_engine.intent_patterns import load_intent_patterns
 
 # Confidence levels from hierarchical classification in IntentClassifier._calculate_confidence
 MULTIWORD_WITH_CONTEXT = 1.0  # Multi-word keyword + context hints (e.g., "turn on" + "lights")
@@ -29,19 +28,19 @@ def nlp_model():
 
 
 @pytest.fixture
-def classifier(nlp_model, mock_rooms):
+def classifier(nlp_model, mock_rooms, mock_pattern_registry):
     """Create IntentClassifier instance for testing."""
     config_obj = config.Config()
-    intent_patterns = load_intent_patterns()
-    return IntentClassifier(config_obj, nlp_model, intent_patterns, mock_rooms)
+    return IntentClassifier(config_obj, nlp_model, mock_pattern_registry, mock_rooms)
 
 
 @pytest.fixture
-def classifier_with_registry(nlp_model, mock_rooms, mock_device_registry):
+def classifier_with_registry(nlp_model, mock_rooms, mock_device_registry, mock_pattern_registry):
     """Create IntentClassifier instance with mock device registry."""
     config_obj = config.Config()
-    intent_patterns = load_intent_patterns()
-    return IntentClassifier(config_obj, nlp_model, intent_patterns, mock_rooms, device_registry=mock_device_registry)
+    return IntentClassifier(
+        config_obj, nlp_model, mock_pattern_registry, mock_rooms, device_registry=mock_device_registry
+    )
 
 
 class TestIntentClassifier:
@@ -98,7 +97,7 @@ class TestIntentClassifier:
         results = classifier.classify(text)
 
         assert len(results) > 0
-        assert results[0][0] == IntentType.QUERY_STATUS
+        assert results[0][0] == IntentType.DEVICE_QUERY
         assert results[0][1] == MULTIWORD_ONLY
 
     def test_negative_keywords_exclude_intent(self, classifier):
@@ -141,13 +140,12 @@ class TestIntentClassifier:
 class TestIntentClassifierIntegration:
     """Integration tests for intent classifier with IntentEngine."""
 
-    def test_classify_intent_basic(self, nlp_model, mock_rooms):
+    def test_classify_intent_basic(self, nlp_model, mock_rooms, mock_pattern_registry):
         """Test basic intent classification through IntentEngine."""
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
-        intent_patterns = load_intent_patterns()
-        classifier = IntentClassifier(config_obj, nlp_model, intent_patterns, mock_rooms)
+        classifier = IntentClassifier(config_obj, nlp_model, mock_pattern_registry, mock_rooms)
 
         engine = IntentEngine(config_obj, mqtt_client_mock, logger_mock, classifier)
 
@@ -167,13 +165,12 @@ class TestIntentClassifierIntegration:
         assert results[0].confidence > 0.0
         assert EntityType.ROOM.value in results[0].entities
 
-    def test_compound_command_classification(self, nlp_model, mock_rooms):
+    def test_compound_command_classification(self, nlp_model, mock_rooms, mock_pattern_registry):
         """Test classification of compound commands."""
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
-        intent_patterns = load_intent_patterns()
-        classifier = IntentClassifier(config_obj, nlp_model, intent_patterns, mock_rooms)
+        classifier = IntentClassifier(config_obj, nlp_model, mock_pattern_registry, mock_rooms)
 
         engine = IntentEngine(config_obj, mqtt_client_mock, logger_mock, classifier)
 
@@ -191,13 +188,12 @@ class TestIntentClassifierIntegration:
         assert results[0].intent_type == IntentType.DEVICE_ON
         assert results[1].intent_type == IntentType.DEVICE_SET
 
-    def test_alternative_intents(self, nlp_model, mock_rooms):
+    def test_alternative_intents(self, nlp_model, mock_rooms, mock_pattern_registry):
         """Test that alternative intents are captured."""
         config_obj = config.Config()
         mqtt_client_mock = Mock()
         logger_mock = Mock()
-        intent_patterns = load_intent_patterns()
-        classifier = IntentClassifier(config_obj, nlp_model, intent_patterns, mock_rooms)
+        classifier = IntentClassifier(config_obj, nlp_model, mock_pattern_registry, mock_rooms)
 
         engine = IntentEngine(config_obj, mqtt_client_mock, logger_mock, classifier)
 
