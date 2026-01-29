@@ -589,7 +589,7 @@ wheels = [
 
 [[package]]
 name = "private-assistant-commons"
-version = "6.1.0"
+version = "6.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiomqtt" },
@@ -600,14 +600,14 @@ dependencies = [
     { name = "rich" },
     { name = "sqlmodel" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/0e/f1991eb19c8da7782e280b13c88e741c92ad0585ee60a401ae245a72c1db/private_assistant_commons-6.1.0.tar.gz", hash = "sha256:d94b9929c09a747f51fd2267726f6c6ccf98122b5dd1654fef5e20469467f1f1", size = 41416, upload-time = "2026-01-28T21:57:12.911Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/e8/fe881d6c8f88d06092f4990fd63e378135ad0efaeab9da4bb05fe82d808b/private_assistant_commons-6.2.0.tar.gz", hash = "sha256:7ed3983d2d099d8a0029383e282d592e77116af5569056ac140c7dc9f161adeb", size = 42680, upload-time = "2026-01-29T18:47:10.339Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/2b/716460d36c54de3e0f4af6d3a3e5cb810ee0acdd5ca6939d49c7c2a31566/private_assistant_commons-6.1.0-py3-none-any.whl", hash = "sha256:f230a11a1d10dfa4bdac0b698f2ae3f5ec0fd9fa9bf9186cdc5df8b166a0a928", size = 47104, upload-time = "2026-01-28T21:57:11.787Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/1b/6f78caa472cd538e13d86568d17131e36e50d7024db33b53a0464c105071/private_assistant_commons-6.2.0-py3-none-any.whl", hash = "sha256:71d5cb345919709cddfb922ef50aa111408a94d3c381c1db9e6ab84eeea51d36", size = 49462, upload-time = "2026-01-29T18:47:09.109Z" },
 ]
 
 [[package]]
 name = "private-assistant-intent-engine"
-version = "1.2.0"
+version = "1.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiomqtt" },
@@ -635,7 +635,7 @@ dev = [
 requires-dist = [
     { name = "aiomqtt" },
     { name = "en-core-web-md", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl" },
-    { name = "private-assistant-commons", specifier = "~=6.1.0" },
+    { name = "private-assistant-commons", specifier = "~=6.2.0" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "spacy", specifier = "~=3.8.7" },

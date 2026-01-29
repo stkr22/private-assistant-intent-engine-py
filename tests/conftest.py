@@ -3,9 +3,10 @@
 from uuid import uuid4
 
 import pytest
+from private_assistant_commons import IntentType
 from private_assistant_commons.database import DeviceType, GlobalDevice, Room
 
-from private_assistant_intent_engine.intent_patterns import load_intent_patterns
+from private_assistant_intent_engine.intent_patterns import IntentPatternConfig
 
 
 class MockDeviceRegistry:
@@ -147,11 +148,140 @@ class MockPatternRegistry:
     """Mock pattern registry for testing.
 
     Provides a minimal implementation of IntentPatternsRegistry with
-    patterns loaded from the default configuration.
+    regex-based patterns for testing.
     """
 
     def __init__(self, pattern_update_topic: str = "assistant/intent_pattern_update"):
-        self.patterns = load_intent_patterns()
+        # Create test patterns using new regex-based format
+        self.patterns = [
+            # Device control
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_ON,
+                keywords=[
+                    (r"turn\s+on(\s+(the|my))?", True),
+                    (r"switch\s+on", True),
+                    (r"power\s+on", True),
+                ],
+                negative_keywords=[("off", False), ("stop", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_OFF,
+                keywords=[
+                    (r"turn\s+off(\s+(the|my))?", True),
+                    (r"switch\s+off", True),
+                    (r"power\s+off", True),
+                ],
+                negative_keywords=[("on", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_SET,
+                keywords=[
+                    (r"(set|adjust|change)\s+(the\s+)?(temperature|temp)", True),
+                    (r"(set|adjust|change)\s+(the\s+)?(brightness|level)", True),
+                    ("set", False),
+                ],
+                negative_keywords=[],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_OPEN,
+                keywords=[
+                    (r"open(\s+(the|my))?", True),
+                    (r"(raise|lift)(\s+(the|my))?", True),
+                ],
+                negative_keywords=[("close", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_CLOSE,
+                keywords=[
+                    (r"close(\s+(the|my))?", True),
+                    (r"(lower|shut)(\s+(the|my))?", True),
+                ],
+                negative_keywords=[("open", False)],
+            ),
+            # Media control
+            IntentPatternConfig(
+                intent_type=IntentType.MEDIA_PLAY,
+                keywords=[
+                    (r"play(\s+(the|my|some))?", True),
+                    (r"(resume|continue)(\s+(the|my))?", True),
+                ],
+                negative_keywords=[("stop", False), ("pause", False), ("next", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.MEDIA_STOP,
+                keywords=[
+                    (r"(stop|pause|halt)(\s+(the|my))?", True),
+                ],
+                negative_keywords=[("play", False), ("resume", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.MEDIA_NEXT,
+                keywords=[
+                    (r"(next|skip)(\s+(song|track|music))?", True),
+                ],
+                negative_keywords=[("previous", False), ("back", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.MEDIA_VOLUME_SET,
+                keywords=[
+                    (r"(set|change|adjust)\s+(the\s+)?volume", True),
+                    (r"volume\s+(to|at)", True),
+                ],
+                negative_keywords=[],
+            ),
+            # Query intents
+            IntentPatternConfig(
+                intent_type=IntentType.DEVICE_QUERY,
+                keywords=[
+                    (r"what\s+is\s+the\s+state", True),
+                    (r"check\s+state", True),
+                    ("status", False),
+                ],
+                negative_keywords=[],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.DATA_QUERY,
+                keywords=[
+                    (r"what\s+(time|are|is)", True),
+                    (r"current\s+time", True),
+                    ("list", False),
+                    ("which", False),
+                ],
+                negative_keywords=[],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.MEDIA_QUERY,
+                keywords=[
+                    (r"what\s+(is\s+)?(playing|song)", True),
+                    (r"current\s+(song|track)", True),
+                ],
+                negative_keywords=[],
+            ),
+            # Scene and scheduling
+            IntentPatternConfig(
+                intent_type=IntentType.SCENE_APPLY,
+                keywords=[
+                    (r"(activate|apply|set)\s+(the\s+)?(scene|scenery|mode)", True),
+                    ("scenery", False),
+                ],
+                negative_keywords=[],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.SCHEDULE_SET,
+                keywords=[
+                    (r"(schedule|set)\s+(a|an|the)?\s+(timer|alarm|reminder)", True),
+                    (r"remind\s+(me)?", True),
+                ],
+                negative_keywords=[("cancel", False), ("delete", False)],
+            ),
+            IntentPatternConfig(
+                intent_type=IntentType.SCHEDULE_CANCEL,
+                keywords=[
+                    (r"(cancel|stop|delete|remove)\s+(the\s+)?(schedule|timer|reminder)", True),
+                ],
+                negative_keywords=[],
+            ),
+        ]
         self.pattern_update_topic = pattern_update_topic
         self.setup_subscriptions_called = False
         self.handle_pattern_update_calls = 0

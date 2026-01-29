@@ -117,10 +117,11 @@ class IntentEngine:
 
                 # Get top intent and alternatives
                 top_intent, top_confidence = intent_results[0]
-                # AIDEV-NOTE: Filter alternative intents with confidence > 0.3 threshold
-                min_alternative_confidence = 0.3
+                # Filter alternative intents with confidence >= 0.5 threshold
+                # Threshold raised from 0.3 to 0.5 due to simplified confidence system
+                min_alternative_confidence = 0.5
                 alternative_intents = [
-                    (intent, conf) for intent, conf in intent_results[1:] if conf > min_alternative_confidence
+                    (intent, conf) for intent, conf in intent_results[1:] if conf >= min_alternative_confidence
                 ]
 
                 # Extract entities (room detection happens inside EntityExtractor)

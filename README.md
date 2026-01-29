@@ -14,14 +14,15 @@ The `private-assistant-intent-engine` is a **hybrid NLP component** that classif
 ## Features
 
 - **Intent Classification**: Recognizes 19 intent types (device control, media control, queries, scenes, scheduling, system)
-- **Confidence Scoring**: Hierarchical scoring (1.0 to 0.3) based on keyword matches and contextual evidence
+- **Confidence Scoring**: Simplified 4-tier scoring (1.0, 0.8, 0.5, 0.0) based on regex pattern complexity
 - **Entity Extraction**: Extracts 8 entity types (devices, rooms, numbers, durations, times, media IDs, scenes, modifiers)
 - **Alternative Intents**: Provides ranked alternatives for ambiguous commands
 - **Compound Command Support**: Splits and processes multiple commands in single utterance
-- **Pattern Customization**: YAML-based intent pattern override system
+- **Database-Driven Patterns**: Intent patterns loaded from PostgreSQL with MQTT refresh
+- **Regex Pattern Matching**: Support for complex regex patterns with alternations and groups
 - **Device Registry Integration**: Matches generic and specific device references
 - **MQTT Event-Driven Architecture**: Async MQTT with automatic reconnection and error handling
-- **Database Integration**: Loads rooms from shared database for consistent entity recognition
+- **Database Integration**: Loads rooms and intent patterns from shared database for consistent entity recognition
 
 ## Architecture
 
