@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.3.0...v2.0.0) (2026-01-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* Patterns are database-only with is_regex flag. Context hints removed.
+
+### Features
+
+* :boom: remove context hints and use regex patterns for explicit intent matching ([ce88203](https://github.com/stkr22/private-assistant-intent-engine-py/commit/ce882035f9ed6d0c62ced92a4702b3fe03c717d1))
+* :boom: remove context hints and use regex patterns for explicit intent matching ([ff17535](https://github.com/stkr22/private-assistant-intent-engine-py/commit/ff175357951fa55cd5460f2b4012d7140d9686a9))
+
 ## [1.3.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.2.0...v1.3.0) (2026-01-28)
 
 
