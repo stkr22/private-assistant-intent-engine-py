@@ -13,6 +13,7 @@ from private_assistant_commons.database import (
     IntentPattern,
 )
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import selectinload
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -86,7 +87,12 @@ class IntentPatternsRegistry:
         """
         async with AsyncSession(self.engine) as session:
             # Load patterns with relationships (SQLModel handles JOINs)
-            statement = select(IntentPattern).where(IntentPattern.enabled).order_by(IntentPattern.priority.desc())  # type: ignore[attr-defined]
+            statement = (
+                select(IntentPattern)
+                .where(IntentPattern.enabled)
+                .order_by(IntentPattern.priority.desc())  # type: ignore[attr-defined]
+                .options(selectinload(IntentPattern.keywords))  # type: ignore[arg-type]
+            )
             results = await session.exec(statement)
             db_patterns = list(results.all())
 
