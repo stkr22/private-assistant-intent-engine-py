@@ -82,24 +82,24 @@ class IntentPatternsRegistry:
     async def refresh_patterns(self) -> None:
         """Refresh in-memory pattern cache from Postgres.
 
-        Loads all enabled patterns with keywords and hints via JOINs,
-        converting to IntentPatternConfig for classifier compatibility.
+        Loads all enabled patterns with keywords via JOINs, reading is_regex flags.
         """
         async with AsyncSession(self.engine) as session:
-            # AIDEV-NOTE: Load patterns with relationships (SQLModel handles JOINs)
+            # Load patterns with relationships (SQLModel handles JOINs)
             statement = select(IntentPattern).where(IntentPattern.enabled).order_by(IntentPattern.priority.desc())  # type: ignore[attr-defined]
             results = await session.exec(statement)
             db_patterns = list(results.all())
 
-            # AIDEV-NOTE: Convert to IntentPatternConfig
+            # Convert to IntentPatternConfig
             self.patterns = []
             for db_pattern in db_patterns:
-                # Separate primary and negative keywords
-                primary_keywords = [kw.keyword for kw in db_pattern.keywords if kw.keyword_type == "primary"]
-                negative_keywords = [kw.keyword for kw in db_pattern.keywords if kw.keyword_type == "negative"]
-
-                # Extract hints
-                context_hints = [hint.hint for hint in db_pattern.hints]
+                # Build keyword tuples with is_regex flag
+                primary_keywords = [
+                    (kw.keyword, kw.is_regex) for kw in db_pattern.keywords if kw.keyword_type == "primary"
+                ]
+                negative_keywords = [
+                    (kw.keyword, kw.is_regex) for kw in db_pattern.keywords if kw.keyword_type == "negative"
+                ]
 
                 # Validate intent_type
                 try:
@@ -108,7 +108,7 @@ class IntentPatternsRegistry:
                     self.logger.warning("Invalid intent_type '%s', skipping pattern", db_pattern.intent_type)
                     continue
 
-                # AIDEV-NOTE: Skip patterns without keywords
+                # Skip patterns without keywords
                 if not primary_keywords:
                     self.logger.warning("Pattern %s has no primary keywords, skipping", db_pattern.intent_type)
                     continue
@@ -117,7 +117,6 @@ class IntentPatternsRegistry:
                 pattern_config = IntentPatternConfig(
                     intent_type=intent_type,
                     keywords=primary_keywords,
-                    context_hints=context_hints,
                     negative_keywords=negative_keywords,
                 )
                 self.patterns.append(pattern_config)

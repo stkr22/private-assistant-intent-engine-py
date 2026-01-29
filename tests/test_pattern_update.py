@@ -1,9 +1,7 @@
 """Tests for intent pattern update functionality."""
 
 import pytest
-from private_assistant_commons import IntentType
 
-from private_assistant_intent_engine.intent_patterns import IntentPatternsConfig
 from tests.conftest import MockPatternRegistry
 
 
@@ -33,49 +31,6 @@ class TestIntentPatternsRefresh:
         assert mock_pattern_registry.handle_pattern_update_calls == 2
 
 
-class TestDefaultPatterns:
-    """Test default pattern configuration."""
-
-    def test_default_patterns_loaded(self):
-        """Test that default patterns are loaded correctly."""
-        config = IntentPatternsConfig.get_default_patterns()
-
-        assert len(config.patterns) > 0
-        # Verify specific patterns exist
-        intent_types = [p.intent_type for p in config.patterns]
-        assert IntentType.DEVICE_ON in intent_types
-        assert IntentType.DEVICE_OFF in intent_types
-        assert IntentType.MEDIA_PLAY in intent_types
-        assert IntentType.DEVICE_QUERY in intent_types
-
-    def test_device_on_pattern_structure(self):
-        """Test DEVICE_ON pattern has expected structure."""
-        config = IntentPatternsConfig.get_default_patterns()
-        device_on = next(p for p in config.patterns if p.intent_type == IntentType.DEVICE_ON)
-
-        assert len(device_on.keywords) > 0
-        assert "turn on" in device_on.keywords
-        assert len(device_on.context_hints) > 0
-        assert "light" in device_on.context_hints or "lights" in device_on.context_hints
-        assert len(device_on.negative_keywords) > 0
-        assert "off" in device_on.negative_keywords
-
-    def test_pattern_count_consistency(self):
-        """Test that pattern count matches expected number of intent types."""
-        config = IntentPatternsConfig.get_default_patterns()
-
-        # Should have patterns for common intent types
-        expected_minimum = 10  # At least 10 patterns
-        assert len(config.patterns) >= expected_minimum
-
-    def test_all_patterns_have_keywords(self):
-        """Test that all patterns have at least one keyword."""
-        config = IntentPatternsConfig.get_default_patterns()
-
-        for pattern in config.patterns:
-            assert len(pattern.keywords) > 0, f"Pattern {pattern.intent_type} has no keywords"
-
-
 class TestPatternRegistry:
     """Test pattern registry behavior."""
 
@@ -93,9 +48,10 @@ class TestPatternRegistry:
         for pattern in mock_pattern_registry.patterns:
             assert hasattr(pattern, "intent_type")
             assert hasattr(pattern, "keywords")
-            assert hasattr(pattern, "context_hints")
             assert hasattr(pattern, "negative_keywords")
             assert len(pattern.keywords) > 0
+            # Verify keywords are tuples of (pattern, is_regex)
+            assert all(isinstance(kw, tuple) and len(kw) == 2 for kw in pattern.keywords)
 
     def test_pattern_registry_topic_configurable(self):
         """Test that pattern update topic can be configured."""

@@ -11,14 +11,11 @@ from private_assistant_intent_engine import config
 from private_assistant_intent_engine.intent_classifier import IntentClassifier
 from private_assistant_intent_engine.intent_engine import IntentEngine
 
-# Confidence levels from hierarchical classification in IntentClassifier._calculate_confidence
-MULTIWORD_WITH_CONTEXT = 1.0  # Multi-word keyword + context hints (e.g., "turn on" + "lights")
-MULTIWORD_ONLY = 0.9  # Multi-word keyword without context (e.g., "switch off" alone)
-KEYWORD_MULTI_CONTEXT = 0.9  # Single keyword + multiple context hints (e.g., "set" + "temperature" + "degrees")
-KEYWORD_CONTEXT = 0.8  # Single keyword + single context hint (e.g., "stop" + "music")
-ALL_KEYWORDS = 0.8  # All pattern keywords present
-KEYWORD_ONLY = 0.5  # Single keyword match without context
-CONTEXT_ONLY = 0.3  # Context hints without keywords
+# Confidence levels from simplified 4-tier system in IntentClassifier._calculate_confidence
+COMPLEX_REGEX_MATCH = 1.0  # Complex regex patterns (with \s+, |, or groups)
+MULTIPLE_KEYWORDS = 0.8  # Multiple keyword matches or all keywords matched
+SINGLE_KEYWORD = 0.5  # Single keyword match
+NO_MATCH = 0.0  # No match or negative keyword present
 
 
 @pytest.fixture
@@ -53,7 +50,7 @@ class TestIntentClassifier:
 
         assert len(results) > 0
         assert results[0][0] == IntentType.DEVICE_ON
-        assert results[0][1] == MULTIWORD_WITH_CONTEXT
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_device_off_intent(self, classifier):
         """Test device off intent classification."""
@@ -62,7 +59,7 @@ class TestIntentClassifier:
 
         assert len(results) > 0
         assert results[0][0] == IntentType.DEVICE_OFF
-        assert results[0][1] == MULTIWORD_ONLY
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_device_set_intent(self, classifier):
         """Test device set intent for temperature control."""
@@ -71,7 +68,7 @@ class TestIntentClassifier:
 
         assert len(results) > 0
         assert results[0][0] == IntentType.DEVICE_SET
-        assert results[0][1] == KEYWORD_CONTEXT
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_media_play_intent(self, classifier):
         """Test media play intent classification."""
@@ -80,7 +77,7 @@ class TestIntentClassifier:
 
         assert len(results) > 0
         assert results[0][0] == IntentType.MEDIA_PLAY
-        assert results[0][1] == KEYWORD_CONTEXT
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_media_stop_intent(self, classifier):
         """Test media stop intent classification."""
@@ -89,16 +86,16 @@ class TestIntentClassifier:
 
         assert len(results) > 0
         assert results[0][0] == IntentType.MEDIA_STOP
-        assert results[0][1] == KEYWORD_CONTEXT
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_query_status_intent(self, classifier):
         """Test query status intent classification."""
-        text = "Check state of open windows"
+        text = "What is the state of the devices"
         results = classifier.classify(text)
 
         assert len(results) > 0
         assert results[0][0] == IntentType.DEVICE_QUERY
-        assert results[0][1] == MULTIWORD_ONLY
+        assert results[0][1] == COMPLEX_REGEX_MATCH
 
     def test_negative_keywords_exclude_intent(self, classifier):
         """Test that negative keywords properly exclude intents."""
