@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v2.0.0...v2.0.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* :bug: add eager loading for IntentPattern.keywords to prevent MissingGreenlet error in async context ([41187a3](https://github.com/stkr22/private-assistant-intent-engine-py/commit/41187a38cfdefac08becbe6fa8a703ecc4ccd707))
+
 ## [2.0.0](https://github.com/stkr22/private-assistant-intent-engine-py/compare/v1.3.0...v2.0.0) (2026-01-29)
 
 
